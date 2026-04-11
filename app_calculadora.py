@@ -378,28 +378,54 @@ pior_ativo = resumo_df.loc[resumo_df["lucro_pct"].apply(_parse_pct).idxmin(), "t
 # ════════════════════════════════════════════════════════════════════════════
 st.success(f"✅ Backtest concluído em {len(ok)} ativo(s). Estratégia: **{estrategia}**.")
 
-tabs = st.tabs(
-    [
-        "📊 Resumo por Ativo",
-        "💼 Totalizador Carteira",
-        "📉 Equity Curve",
-        "📋 Trades Detalhados",
-        "🔥 Heatmap",
-        "💾 Export",
-    ]
-)
+# Lista de tabs: a aba de Opções só aparece quando o checkbox foi marcado E
+# pelo menos 1 ativo produziu simulação válida.
+ativos_com_opcoes = [r for r in ok if r.get("opcoes") is not None]
+tem_opcoes = incluir_opcoes and len(ativos_com_opcoes) > 0
+
+tab_labels = [
+    "📊 Resumo por Ativo",
+    "💼 Totalizador Carteira",
+    "📉 Equity Curve",
+    "📋 Trades Detalhados",
+    "🔥 Heatmap",
+]
+if tem_opcoes:
+    tab_labels.append("🎯 Opções")
+tab_labels.append("💾 Export")
+
+tabs = st.tabs(tab_labels)
+
+# Indices dinâmicos — quando "Opções" existe, shifta o Export
+IDX_RESUMO = 0
+IDX_TOTAL = 1
+IDX_EQUITY = 2
+IDX_TRADES = 3
+IDX_HEATMAP = 4
+IDX_OPCOES = 5 if tem_opcoes else None
+IDX_EXPORT = 6 if tem_opcoes else 5
 
 # ──────────────────────────────────────────────
 # TAB 1 — Resumo por Ativo
 # ──────────────────────────────────────────────
-with tabs[0]:
+with tabs[IDX_RESUMO]:
     st.subheader("Resumo por Ativo")
     st.dataframe(resumo_df, use_container_width=True, hide_index=True)
+    if incluir_opcoes and not tem_opcoes:
+        st.warning(
+            "⚠️ Checkbox de opções estava marcado, mas nenhum ativo gerou operações de opção válidas. "
+            "Verifique os erros no expander de execução."
+        )
+    elif tem_opcoes:
+        st.info(
+            f"🎯 Simulação de opções ativa — veja a aba **Opções** pra detalhes "
+            f"de cada um dos {len(ativos_com_opcoes)} ativo(s)."
+        )
 
 # ──────────────────────────────────────────────
 # TAB 2 — Totalizador
 # ──────────────────────────────────────────────
-with tabs[1]:
+with tabs[IDX_TOTAL]:
     st.subheader("Totalizador da Carteira")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Ativos processados", len(ok))
@@ -425,7 +451,7 @@ with tabs[1]:
 # ──────────────────────────────────────────────
 # TAB 3 — Equity Curve
 # ──────────────────────────────────────────────
-with tabs[2]:
+with tabs[IDX_EQUITY]:
     st.subheader("Equity Curve Multi-Ticker")
     st.caption("Curva composta capital = 100 × ∏(1 + lucro_pct/100) reconstruída por ativo.")
 
@@ -459,7 +485,7 @@ with tabs[2]:
 # ──────────────────────────────────────────────
 # TAB 4 — Trades Detalhados (paginados)
 # ──────────────────────────────────────────────
-with tabs[3]:
+with tabs[IDX_TRADES]:
     st.subheader("Trades Detalhados")
     if len(ok) > 1:
         ticker_focus = st.selectbox("Ativo:", [r["ticker"] for r in ok], key="focus_trades")
@@ -486,7 +512,7 @@ with tabs[3]:
 # ──────────────────────────────────────────────
 # TAB 5 — Heatmap
 # ──────────────────────────────────────────────
-with tabs[4]:
+with tabs[IDX_HEATMAP]:
     st.subheader("Heatmap — Ativo × Métrica")
     st.caption("Valores numéricos extraídos dos campos formatados pra comparação visual.")
 
@@ -512,9 +538,107 @@ with tabs[4]:
     )
 
 # ──────────────────────────────────────────────
-# TAB 6 — Export
+# TAB 6 (condicional) — Opções
 # ──────────────────────────────────────────────
-with tabs[5]:
+if tem_opcoes:
+    with tabs[IDX_OPCOES]:
+        st.subheader("🎯 Simulação de Opções (Black-Scholes ATM)")
+        st.caption(
+            "Opções sintéticas precificadas via Black-Scholes. "
+            "Aplicação do sizing escolhido: "
+            f"**{sizing_mode}** (valor = {sizing_valor})."
+        )
+
+        # Picker de ativo — só um por vez pra não poluir
+        if len(ativos_com_opcoes) > 1:
+            ticker_opc = st.selectbox(
+                "Ativo (opções):",
+                [r["ticker"] for r in ativos_com_opcoes],
+                key="focus_opcoes",
+            )
+        else:
+            ticker_opc = ativos_com_opcoes[0]["ticker"]
+
+        focus_opc = next(r for r in ativos_com_opcoes if r["ticker"] == ticker_opc)
+        opc_data = focus_opc["opcoes"]
+
+        # ─── Cards de métricas-resumo (do bloco "resumo" do options_sim) ───
+        resumo_opc = opc_data.get("resumo", {})
+        if resumo_opc:
+            st.markdown("##### Resumo agregado")
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Total operações", resumo_opc.get("total_operacoes", 0))
+            c2.metric("Calls / Puts", f"{resumo_opc.get('calls', 0)} / {resumo_opc.get('puts', 0)}")
+            c3.metric("Win rate opções", resumo_opc.get("win_rate_opcoes", "N/A"))
+            c4.metric("Retorno opções", resumo_opc.get("retorno_opcoes", "N/A"))
+
+            c5, c6, c7, c8 = st.columns(4)
+            c5.metric("Investido opções", resumo_opc.get("investido_opcoes", "N/A"))
+            c6.metric("Lucro opções", resumo_opc.get("lucro_opcoes", "N/A"))
+            c7.metric("Lucro ação equivalente", resumo_opc.get("lucro_acao", "N/A"))
+            alav = resumo_opc.get("alavancagem_media", "N/A")
+            c8.metric("Alavancagem média", f"{alav}x" if isinstance(alav, (int, float)) else alav)
+
+        # ─── Bloco sizing (se ativo) ───
+        sizing_info = opc_data.get("sizing")
+        if sizing_info:
+            st.markdown("##### Sizing (banca dedicada)")
+            s1, s2, s3, s4 = st.columns(4)
+            s1.metric("Banca inicial", f"R$ {sizing_info.get('banca_inicial', 0):,.2f}")
+            s2.metric("Banca final", f"R$ {sizing_info.get('banca_final', 0):,.2f}")
+            s3.metric("Retorno", sizing_info.get("retorno_pct", "N/A"))
+            s4.metric("Max drawdown", sizing_info.get("max_drawdown_pct", "N/A"))
+
+            s5, s6, s7, s8 = st.columns(4)
+            s5.metric("Trades executados", sizing_info.get("trades_executados", 0))
+            s6.metric("Trades pulados", sizing_info.get("trades_pulados", 0))
+            s7.metric("Total de lotes", sizing_info.get("total_lotes", 0))
+            s8.metric("Pico da banca", f"R$ {sizing_info.get('pico', 0):,.2f}")
+        else:
+            st.info(
+                "ℹ️ Sizing não aplicado neste modo (`agregado` usa 1 lote fixo por trade). "
+                "Troque pra `lote_fixo`, `fracao_banca`, `teto_absoluto` ou `fracao_capital` "
+                "pra ver banca evoluindo."
+            )
+
+        # ─── Tabela paginada das operações ───
+        operacoes = opc_data.get("operacoes", [])
+        if not operacoes:
+            st.warning(f"Nenhuma operação de opção foi aberta pra {ticker_opc}.")
+        else:
+            st.markdown(f"##### Operações ({len(operacoes)} total)")
+            df_opc = pd.DataFrame(operacoes)
+
+            page_size_opc = 20
+            total_paginas_opc = max((len(df_opc) - 1) // page_size_opc + 1, 1)
+            pagina_opc = st.number_input(
+                "Página (opções)",
+                min_value=1,
+                max_value=total_paginas_opc,
+                value=1,
+                step=1,
+                key="pag_opcoes",
+            )
+            ini_opc = (pagina_opc - 1) * page_size_opc
+            fim_opc = ini_opc + page_size_opc
+            st.dataframe(df_opc.iloc[ini_opc:fim_opc], use_container_width=True, hide_index=True)
+            st.caption(
+                f"Mostrando operações {ini_opc + 1}–{min(fim_opc, len(df_opc))} de {len(df_opc)} "
+                f"({total_paginas_opc} página(s))."
+            )
+
+        # ─── Premissas + disclaimer ───
+        with st.expander("🔎 Premissas do modelo"):
+            premissas = opc_data.get("premissas", {})
+            for k, v in premissas.items():
+                st.write(f"- **{k}:** {v}")
+        st.caption(opc_data.get("disclaimer", ""))
+
+
+# ──────────────────────────────────────────────
+# TAB 7 — Export
+# ──────────────────────────────────────────────
+with tabs[IDX_EXPORT]:
     st.subheader("Exportar Resultados")
 
     col1, col2 = st.columns(2)
