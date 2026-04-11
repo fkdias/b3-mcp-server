@@ -16,6 +16,10 @@ dependencies = [
 dev = [
     "pytest>=7.0",
 ]
+ui = [
+    "streamlit>=1.30",
+    "pandas>=2.0",
+]
 
 [project.scripts]
 b3-mcp = "b3_mcp.server:main"
@@ -56,3 +60,4 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["F401", "F811"]  # fixtures e imports indiretos
+"app_calculadora.py" = ["E402"]     # sys.path.insert precisa rodar antes dos imports do b3_mcp

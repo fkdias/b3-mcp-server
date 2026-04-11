@@ -596,6 +596,66 @@ rodam 100% determinsticos sem dependencia de rede.
 
 ---
 
+## [20] Calculadora Interativa de Backtest (Streamlit)
+
+**Camada UI** em cima do `backtest_service` e `options_sim`. Não duplica
+nenhuma lógica — só coleta parâmetros via formulário, itera por ticker e
+renderiza os resultados em 6 abas.
+
+**Instalação:**
+```bash
+pip install -e ".[ui]"
+```
+
+**Rodar:**
+```bash
+streamlit run app_calculadora.py
+```
+
+Ou clique 2x em `app_calculadora.bat` no Windows.
+
+**Formulário (sidebar):**
+- **Estratégia** — dropdown com `hilo`, `rsi`, `sma_crossover`,
+  `ema_crossover`, `macd`, `bollinger`, `todas` (modo comparativo roda as 6)
+- **Período Hi-Lo** — slider 5-30 (default 10)
+- **Ativos** — multiselect com os 26 tickers offline
+- **Máx. de ativos** — slider pra limitar execução
+- **Capital total** + **Capital dedicado à estratégia** — R$
+- **Sizing (opções):** modo (`agregado`/`lote_fixo`/`fracao_banca`/
+  `teto_absoluto`/`fracao_capital`) + valor numérico
+- **Limite de risco por operação** — atalho Tio Huli (default 1%)
+- **Máx. de operações** — 0 = ilimitado
+- **Tamanho do lote** — default 100 contratos
+- **Incluir simulação de opções** — checkbox (Black-Scholes ATM)
+
+**Output (6 abas):**
+
+1. **Resumo por Ativo** — tabela com trades, taxa de acerto, lucro %,
+   profit factor, max DD, retorno das opções (se marcado).
+2. **Totalizador Carteira** — métricas agregadas (total trades, retorno
+   médio, retorno acumulado, melhor/pior ativo).
+3. **Equity Curve** — `st.line_chart` multi-ticker reconstruído como
+   `100 × ∏(1 + lucro_pct/100)` pra cada ativo.
+4. **Trades Detalhados** — DataFrame paginado (20/página) com seletor de
+   ativo quando mais de 1 foi processado.
+5. **Heatmap** — `DataFrame.style.background_gradient` colorindo
+   lucro_pct/taxa_acerto/profit_factor/max_dd/trades.
+6. **Export** — download CSV (resumo) + JSON (completo com parâmetros
+   + trades + métricas + opções).
+
+**Constraints arquiteturais:**
+- **Zero modificação** dos services (`backtest_service.py`,
+  `options_sim.py`, `hilo_service.py`)
+- **Offline sempre** (`offline=True` hardcoded) — não faz requisição HTTP
+- **Sem persistência** no MVP — tudo em memória
+- **Dark theme** alinhado com `chart_service.py` (fundo `#0E1117`)
+
+**Stack adicional:** `streamlit>=1.30` + `pandas>=2.0` em
+`[project.optional-dependencies].ui` (não entra no caminho do MCP server —
+se não instalar o extra, a calculadora simplesmente não sobe).
+
+---
+
 ## Dicas de Uso
 
 1. **Comece pelo panorama:** Use `panorama_mercado_b3()` para ver o mercado geral
