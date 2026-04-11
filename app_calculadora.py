@@ -138,6 +138,21 @@ def _rodar_ticker(
 
 
 # ════════════════════════════════════════════════════════════════════════════
+# Tutorial — carregado do markdown em docs/TUTORIAL_CALCULADORA.md
+# ════════════════════════════════════════════════════════════════════════════
+_TUTORIAL_PATH = _ROOT / "docs" / "TUTORIAL_CALCULADORA.md"
+
+
+@st.cache_data
+def _carregar_tutorial() -> str:
+    """Lê o markdown do tutorial. Cacheado pra não reler a cada rerun."""
+    try:
+        return _TUTORIAL_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return "⚠️ Arquivo `docs/TUTORIAL_CALCULADORA.md` não encontrado. Verifique se o projeto está completo."
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # Sidebar — Formulário principal
 # ════════════════════════════════════════════════════════════════════════════
 st.title("📈 Calculadora de Backtest — B3 MCP")
@@ -146,8 +161,15 @@ st.caption(
     "Dados em modo **offline** (datasets ~3 anos de candles diários)."
 )
 
+# Tutorial expansível — sempre visível no topo pra primeira vez
+with st.expander("📖 **Tutorial — O que cada campo da barra lateral faz** (clique pra abrir)", expanded=False):
+    st.markdown(_carregar_tutorial())
+
 with st.sidebar:
     st.header("⚙️ Parâmetros")
+
+    # Link rápido pro tutorial (redundância útil pro usuário novo)
+    st.caption("📖 [Abra o tutorial completo](#tutorial) no topo da página principal ↗️")
 
     tickers_offline = _listar_offline_disponiveis()
 
@@ -166,6 +188,10 @@ with st.sidebar:
             max_value=30,
             value=10,
             step=1,
+            help=(
+                "Quantos candles olhar pra trás ao calcular a média do Hi-Lo. "
+                "5 = reativo (day trade). 10 = default. 30 = conservador (swing longo)."
+            ),
         )
 
         st.subheader("Ativos")
@@ -173,6 +199,7 @@ with st.sidebar:
             "Selecione os tickers (datasets offline)",
             options=tickers_offline,
             default=tickers_offline[:3] if len(tickers_offline) >= 3 else tickers_offline,
+            help="Lista dos 26 datasets offline (~3 anos de candles cada). Pode escolher quantos quiser.",
         )
 
         limite_ativos = st.slider(
@@ -180,6 +207,7 @@ with st.sidebar:
             min_value=1,
             max_value=max(len(tickers_offline), 1),
             value=min(5, len(tickers_offline) or 1),
+            help="Trava quantos dos ativos selecionados acima serão efetivamente processados.",
         )
 
         st.subheader("Capital & Sizing")
@@ -188,6 +216,7 @@ with st.sidebar:
             min_value=100.0,
             value=10_000.0,
             step=500.0,
+            help="Quanto você tem total na corretora. Serve só como denominador pros % na aba Totalizador.",
         )
         capital_estrategia = st.number_input(
             "Capital dedicado à estratégia (R$)",
