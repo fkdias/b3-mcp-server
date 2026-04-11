@@ -1,5 +1,8 @@
 # B3 MCP Server
 
+[![Tests](https://github.com/fkdias/b3-mcp-server/actions/workflows/tests.yml/badge.svg)](https://github.com/fkdias/b3-mcp-server/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
+
 MCP Server para analise do mercado de acoes brasileiro (B3/Bovespa) com Hi-Lo Activator.
 
 ## Instalacao
