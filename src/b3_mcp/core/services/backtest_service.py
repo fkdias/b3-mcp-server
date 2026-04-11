@@ -4,11 +4,16 @@ import json
 import os
 from typing import Any
 
+from ..utils.formatting import formatar_brl, formatar_percentual, ticker_limpo
 from .indicators_calc import (
-    calc_hilo_activator, rsi, sma, ema, macd, bollinger_bands,
+    bollinger_bands,
+    calc_hilo_activator,
+    ema,
+    macd,
+    rsi,
+    sma,
 )
 from .yahoo_finance import obter_historico
-from ..utils.formatting import formatar_brl, formatar_percentual, ticker_limpo
 
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "samples")
 
@@ -29,7 +34,7 @@ def _carregar_dados(ticker: str, offline: bool) -> list[dict]:
     if offline:
         caminho = os.path.join(SAMPLES_DIR, f"{nome}_diario.json")
         if os.path.exists(caminho):
-            with open(caminho, "r", encoding="utf-8") as f:
+            with open(caminho, encoding="utf-8") as f:
                 return json.load(f)
         raise ValueError(f"Dados offline não disponíveis para {ticker}")
     return obter_historico(ticker, periodo="1y")
@@ -112,14 +117,16 @@ def _run_rsi(candles: list[dict], periodo: int = 14, sobrevenda: float = 30, sob
         elif rsi_vals[i] > sobrecompra and posicao is not None:
             lucro = fechamentos[i] - posicao["entrada"]
             lucro_pct = (lucro / posicao["entrada"]) * 100
-            trades.append({
-                "data_entrada": posicao["data_entrada"],
-                "data_saida": candles[i]["data"],
-                "preco_entrada": posicao["entrada"],
-                "preco_saida": fechamentos[i],
-                "lucro": round(lucro, 2),
-                "lucro_pct": round(lucro_pct, 2),
-            })
+            trades.append(
+                {
+                    "data_entrada": posicao["data_entrada"],
+                    "data_saida": candles[i]["data"],
+                    "preco_entrada": posicao["entrada"],
+                    "preco_saida": fechamentos[i],
+                    "lucro": round(lucro, 2),
+                    "lucro_pct": round(lucro_pct, 2),
+                }
+            )
             posicao = None
 
     return trades
@@ -146,14 +153,16 @@ def _run_sma_crossover(candles: list[dict], rapida: int = 9, lenta: int = 21) ->
         elif sma_rapida[i - 1] >= sma_lenta[i - 1] and sma_rapida[i] < sma_lenta[i] and posicao is not None:
             lucro = fechamentos[i] - posicao["entrada"]
             lucro_pct = (lucro / posicao["entrada"]) * 100
-            trades.append({
-                "data_entrada": posicao["data_entrada"],
-                "data_saida": candles[i]["data"],
-                "preco_entrada": posicao["entrada"],
-                "preco_saida": fechamentos[i],
-                "lucro": round(lucro, 2),
-                "lucro_pct": round(lucro_pct, 2),
-            })
+            trades.append(
+                {
+                    "data_entrada": posicao["data_entrada"],
+                    "data_saida": candles[i]["data"],
+                    "preco_entrada": posicao["entrada"],
+                    "preco_saida": fechamentos[i],
+                    "lucro": round(lucro, 2),
+                    "lucro_pct": round(lucro_pct, 2),
+                }
+            )
             posicao = None
 
     return trades
@@ -178,14 +187,16 @@ def _run_ema_crossover(candles: list[dict], rapida: int = 9, lenta: int = 21) ->
         elif ema_rapida[i - 1] >= ema_lenta[i - 1] and ema_rapida[i] < ema_lenta[i] and posicao is not None:
             lucro = fechamentos[i] - posicao["entrada"]
             lucro_pct = (lucro / posicao["entrada"]) * 100
-            trades.append({
-                "data_entrada": posicao["data_entrada"],
-                "data_saida": candles[i]["data"],
-                "preco_entrada": posicao["entrada"],
-                "preco_saida": fechamentos[i],
-                "lucro": round(lucro, 2),
-                "lucro_pct": round(lucro_pct, 2),
-            })
+            trades.append(
+                {
+                    "data_entrada": posicao["data_entrada"],
+                    "data_saida": candles[i]["data"],
+                    "preco_entrada": posicao["entrada"],
+                    "preco_saida": fechamentos[i],
+                    "lucro": round(lucro, 2),
+                    "lucro_pct": round(lucro_pct, 2),
+                }
+            )
             posicao = None
 
     return trades
@@ -207,14 +218,16 @@ def _run_macd_strategy(candles: list[dict]) -> list[dict]:
         elif hist[i - 1] >= 0 and hist[i] < 0 and posicao is not None:
             lucro = fechamentos[i] - posicao["entrada"]
             lucro_pct = (lucro / posicao["entrada"]) * 100
-            trades.append({
-                "data_entrada": posicao["data_entrada"],
-                "data_saida": candles[i]["data"],
-                "preco_entrada": posicao["entrada"],
-                "preco_saida": fechamentos[i],
-                "lucro": round(lucro, 2),
-                "lucro_pct": round(lucro_pct, 2),
-            })
+            trades.append(
+                {
+                    "data_entrada": posicao["data_entrada"],
+                    "data_saida": candles[i]["data"],
+                    "preco_entrada": posicao["entrada"],
+                    "preco_saida": fechamentos[i],
+                    "lucro": round(lucro, 2),
+                    "lucro_pct": round(lucro_pct, 2),
+                }
+            )
             posicao = None
 
     return trades
@@ -235,14 +248,16 @@ def _run_bollinger(candles: list[dict]) -> list[dict]:
         elif fechamentos[i] >= bb["superior"][i] and posicao is not None:
             lucro = fechamentos[i] - posicao["entrada"]
             lucro_pct = (lucro / posicao["entrada"]) * 100
-            trades.append({
-                "data_entrada": posicao["data_entrada"],
-                "data_saida": candles[i]["data"],
-                "preco_entrada": posicao["entrada"],
-                "preco_saida": fechamentos[i],
-                "lucro": round(lucro, 2),
-                "lucro_pct": round(lucro_pct, 2),
-            })
+            trades.append(
+                {
+                    "data_entrada": posicao["data_entrada"],
+                    "data_saida": candles[i]["data"],
+                    "preco_entrada": posicao["entrada"],
+                    "preco_saida": fechamentos[i],
+                    "lucro": round(lucro, 2),
+                    "lucro_pct": round(lucro_pct, 2),
+                }
+            )
             posicao = None
 
     return trades
@@ -280,7 +295,7 @@ def _calcular_metricas(trades: list[dict], capital_inicial: float = 10000) -> di
     peak = capital_inicial
     max_dd = 0
     for t in trades:
-        equity *= (1 + t["lucro_pct"] / 100)
+        equity *= 1 + t["lucro_pct"] / 100
         if equity > peak:
             peak = equity
         dd = (peak - equity) / peak * 100 if peak > 0 else 0
@@ -342,10 +357,7 @@ def executar_backtest(
         }
 
     if estrategia not in ESTRATEGIA_RUNNERS:
-        raise ValueError(
-            f"Estratégia '{estrategia}' não encontrada. "
-            f"Disponíveis: {', '.join(ESTRATEGIAS_DISPONIVEIS)}"
-        )
+        raise ValueError(f"Estratégia '{estrategia}' não encontrada. Disponíveis: {', '.join(ESTRATEGIAS_DISPONIVEIS)}")
 
     runner = ESTRATEGIA_RUNNERS[estrategia]
     trades = runner(candles)

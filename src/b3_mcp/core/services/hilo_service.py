@@ -4,11 +4,11 @@ import json
 import os
 from typing import Any
 
-from .indicators_calc import calc_hilo_activator, rsi, sma, ema, macd, bollinger_bands
-from .yahoo_finance import obter_historico
-from .chart_service import gerar_grafico_hilo
-from ..utils.formatting import formatar_brl, formatar_percentual, formatar_volume, ticker_limpo
 from ..data.b3_sectors import get_setor
+from ..utils.formatting import formatar_brl, formatar_percentual, formatar_volume, ticker_limpo
+from .chart_service import gerar_grafico_hilo
+from .indicators_calc import bollinger_bands, calc_hilo_activator, rsi, sma
+from .yahoo_finance import obter_historico
 
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "samples")
 
@@ -18,7 +18,7 @@ def _carregar_offline(ticker: str) -> list[dict] | None:
     nome = ticker_limpo(ticker).lower()
     caminho = os.path.join(SAMPLES_DIR, f"{nome}_diario.json")
     if os.path.exists(caminho):
-        with open(caminho, "r", encoding="utf-8") as f:
+        with open(caminho, encoding="utf-8") as f:
             return json.load(f)
     return None
 
@@ -65,7 +65,7 @@ def _calcular_volatilidade(fechamentos: list[float], janela: int = 20) -> dict:
     recentes = fechamentos[-janela:]
     media = sum(recentes) / len(recentes)
     variancia = sum((x - media) ** 2 for x in recentes) / len(recentes)
-    dp = variancia ** 0.5
+    dp = variancia**0.5
     volatilidade_pct = (dp / media) * 100
 
     return {
@@ -159,7 +159,7 @@ def _formatar_trades_com_acumulado(trades: list[dict]) -> list[dict]:
     equity = 100
 
     for t in trades:
-        equity *= (1 + t["resultado_pct"] / 100)
+        equity *= 1 + t["resultado_pct"] / 100
         direcao = t.get("direcao", "LONG")
         motivo = t.get("motivo_saida", "REVERSAO")
         # Texto da saída: descreve o que fechou o trade
@@ -170,17 +170,19 @@ def _formatar_trades_com_acumulado(trades: list[dict]) -> list[dict]:
             saida_por = "Fim do periodo (posicao residual)"
         else:
             saida_por = motivo
-        resultado.append({
-            "direcao": direcao,
-            "entrada": f"{t['entrada_data']} @ {formatar_brl(t['entrada_preco'])}",
-            "saida": f"{t['saida_data']} @ {formatar_brl(t['saida_preco'])}",
-            "resultado": formatar_percentual(t["resultado_pct"]),
-            "acumulado": formatar_percentual(equity - 100),
-            "dias": t["dias"],
-            "dd_trade": formatar_percentual(-t["max_drawdown_trade"]),
-            "tipo": t["tipo"],  # WIN ou LOSS
-            "saida_por": saida_por,
-        })
+        resultado.append(
+            {
+                "direcao": direcao,
+                "entrada": f"{t['entrada_data']} @ {formatar_brl(t['entrada_preco'])}",
+                "saida": f"{t['saida_data']} @ {formatar_brl(t['saida_preco'])}",
+                "resultado": formatar_percentual(t["resultado_pct"]),
+                "acumulado": formatar_percentual(equity - 100),
+                "dias": t["dias"],
+                "dd_trade": formatar_percentual(-t["max_drawdown_trade"]),
+                "tipo": t["tipo"],  # WIN ou LOSS
+                "saida_por": saida_por,
+            }
+        )
 
     return resultado
 
@@ -215,7 +217,7 @@ def _calcular_metricas_risco(candles: list[dict], hilo_data: dict) -> dict:
         dias = idx_saida - pos["entrada_idx"]
 
         # Curva de P&L intra-trade em % (uniforme long/short)
-        precos_trade = fechamentos[pos["entrada_idx"]:idx_saida + 1]
+        precos_trade = fechamentos[pos["entrada_idx"] : idx_saida + 1]
         if pos["direcao"] == "LONG":
             pnl_curve = [(p - entrada_preco) / entrada_preco * 100 for p in precos_trade]
         else:
@@ -308,7 +310,7 @@ def _calcular_metricas_risco(candles: list[dict], hilo_data: dict) -> dict:
     max_dd_total = 0
     equity_curve = [100]
     for t in trades:
-        equity *= (1 + t["resultado_pct"] / 100)
+        equity *= 1 + t["resultado_pct"] / 100
         equity_curve.append(round(equity, 2))
         if equity > peak_equity:
             peak_equity = equity
@@ -407,8 +409,11 @@ def _gerar_cenarios(
         cenario_base = {
             "direcao": "FORA / aguardar sinal de COMPRA",
             "proximo_suporte": {"preco": formatar_brl(suporte), "descricao": "Suporte de 20 dias"},
-            "zona_compra": {"preco": f"{formatar_brl(suporte)} - {formatar_brl(round(suporte * 1.02, 2))}", "descricao": "Região de suporte com margem de 2%"},
-            "observacao": f"Aguardar Hi-Lo virar COMPRA antes de entrar",
+            "zona_compra": {
+                "preco": f"{formatar_brl(suporte)} - {formatar_brl(round(suporte * 1.02, 2))}",
+                "descricao": "Região de suporte com margem de 2%",
+            },
+            "observacao": "Aguardar Hi-Lo virar COMPRA antes de entrar",
         }
         cenario_reverso = {
             "gatilho": f"Fechamento acima de {formatar_brl(activator)} (activator)",
@@ -484,12 +489,14 @@ def analisar_hilo(
     ultimos_sinais = []
     for i in range(len(candles) - 1, -1, -1):
         if hilo["sinais"][i] is not None:
-            ultimos_sinais.append({
-                "data": datas[i],
-                "sinal": hilo["sinais"][i],
-                "preco": fechamentos[i],
-                "preco_formatado": formatar_brl(fechamentos[i]),
-            })
+            ultimos_sinais.append(
+                {
+                    "data": datas[i],
+                    "sinal": hilo["sinais"][i],
+                    "preco": fechamentos[i],
+                    "preco_formatado": formatar_brl(fechamentos[i]),
+                }
+            )
             if len(ultimos_sinais) >= 10:
                 break
 
@@ -524,7 +531,9 @@ def analisar_hilo(
     # ─── Variação no período da tendência ───
     inicio_tendencia_idx = ultimo_idx - dias_tendencia + 1
     preco_inicio_tendencia = fechamentos[inicio_tendencia_idx] if inicio_tendencia_idx >= 0 else preco_atual
-    variacao_tendencia = ((preco_atual - preco_inicio_tendencia) / preco_inicio_tendencia * 100) if preco_inicio_tendencia else 0
+    variacao_tendencia = (
+        ((preco_atual - preco_inicio_tendencia) / preco_inicio_tendencia * 100) if preco_inicio_tendencia else 0
+    )
 
     # ─── Suporte e Resistência ───
     sr = _calcular_suporte_resistencia(candles)
@@ -535,13 +544,9 @@ def analisar_hilo(
     # ─── Volatilidade ───
     volat = _calcular_volatilidade(fechamentos)
 
-    # ─── Performance do último trade ───
-    perf_trade = _calcular_performance_trade(ultimos_sinais)
-
     # ─── Bollinger position ───
     bb_sup = bb["superior"][ultimo_idx]
     bb_inf = bb["inferior"][ultimo_idx]
-    bb_med = bb["media"][ultimo_idx]
     if bb_sup and bb_inf and bb_sup != bb_inf:
         bb_posicao = round((preco_atual - bb_inf) / (bb_sup - bb_inf) * 100, 1)
     else:
@@ -560,8 +565,13 @@ def analisar_hilo(
 
     # ─── Cenários e alvos ───
     cenarios = _gerar_cenarios(
-        ticker_clean, tendencia_atual, preco_atual, activator_atual,
-        sr["suporte_20d"], sr["resistencia_20d"], rsi_atual,
+        ticker_clean,
+        tendencia_atual,
+        preco_atual,
+        activator_atual,
+        sr["suporte_20d"],
+        sr["resistencia_20d"],
+        rsi_atual,
         volat.get("volatilidade_20d"),
     )
 
@@ -573,7 +583,6 @@ def analisar_hilo(
 
     # ─── Resumo enriquecido ───
     if tendencia_atual == "ALTA":
-        emoji_trend = "ALTA"
         resumo = (
             f"{ticker_clean} em TENDENCIA DE ALTA pelo Hi-Lo Activator (periodo {periodo}). "
             f"Preco {formatar_brl(preco_atual)} esta {formatar_percentual(distancia_pct)} acima do activator ({formatar_brl(activator_atual)}). "
@@ -600,7 +609,6 @@ def analisar_hilo(
         "ticker": ticker_clean,
         "setor": setor,
         "data_analise": datas[ultimo_idx],
-
         # ─── Hi-Lo Activator ───
         "hilo": {
             "periodo": periodo,
@@ -612,7 +620,6 @@ def analisar_hilo(
             "dias_na_tendencia": dias_tendencia,
             "variacao_na_tendencia": formatar_percentual(variacao_tendencia),
         },
-
         # ─── Preço ───
         "preco": {
             "atual": preco_atual,
@@ -622,7 +629,6 @@ def analisar_hilo(
             "bollinger_superior": formatar_brl(bb_sup) if bb_sup else "N/A",
             "bollinger_inferior": formatar_brl(bb_inf) if bb_inf else "N/A",
         },
-
         # ─── Indicadores ───
         "indicadores": {
             "rsi_14": round(rsi_atual, 2) if rsi_atual else None,
@@ -631,30 +637,22 @@ def analisar_hilo(
             "sma_21": round(sma21_val, 2) if sma21_val else None,
             "sma_status": sma_status,
         },
-
         # ─── Volume ───
         "volume": volume,
-
         # ─── Suporte e Resistência ───
         "suporte_resistencia": sr,
-
         # ─── Volatilidade ───
         "volatilidade": volat,
-
         # ─── Cenários e operação ───
         "cenarios": cenarios,
-
         # ─── Métricas de risco ───
         "metricas_risco": metricas_risco,
-
         # ─── Histórico de sinais ───
         "ultimo_sinal": ultimos_sinais[0] if ultimos_sinais else None,
         "historico_sinais": ultimos_sinais,
-
         # ─── Resumo ───
         "resumo": resumo,
         "total_candles": len(candles),
-
         # ─── Gráfico ───
         "grafico": None,
     }

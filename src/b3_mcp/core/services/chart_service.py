@@ -2,19 +2,17 @@
 
 import os
 import tempfile
-from typing import Any
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.gridspec as gridspec
-from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
 from datetime import datetime
 
-from ..utils.formatting import formatar_brl
-
+import matplotlib.dates as mdates
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
 
 # ─── Paleta dark profissional ───
 C = {
@@ -79,8 +77,11 @@ def gerar_grafico_hilo(
 
     # Sub-grid esquerda: preço (60%) + volume (20%) + equity curve (20%)
     gs_chart = gridspec.GridSpecFromSubplotSpec(
-        3, 1, subplot_spec=gs_main[0],
-        height_ratios=[3, 1, 1], hspace=0.18,
+        3,
+        1,
+        subplot_spec=gs_main[0],
+        height_ratios=[3, 1, 1],
+        hspace=0.18,
     )
     ax_preco = fig.add_subplot(gs_chart[0])
     ax_vol = fig.add_subplot(gs_chart[1], sharex=ax_preco)
@@ -114,9 +115,7 @@ def gerar_grafico_hilo(
         data_num = mdates.date2num(datas[i])
 
         # Wick (sombra superior+inferior)
-        ax_preco.vlines(
-            data_num, lo, hi, color=cor, linewidth=0.9, alpha=0.9, zorder=3
-        )
+        ax_preco.vlines(data_num, lo, hi, color=cor, linewidth=0.9, alpha=0.9, zorder=3)
 
         # Body (retângulo open→close)
         body_low = min(op, cl)
@@ -148,7 +147,10 @@ def gerar_grafico_hilo(
         ax_preco.plot(
             [datas[i - 1], datas[i]],
             [activator_vals[i - 1], activator_vals[i]],
-            color=cor, linewidth=2.2, alpha=0.8, zorder=4,
+            color=cor,
+            linewidth=2.2,
+            alpha=0.8,
+            zorder=4,
         )
 
     # Sinais COMPRA / VENDA — posicionados fora do candle, relativos ao activator:
@@ -159,7 +161,8 @@ def gerar_grafico_hilo(
     activator_finitos_pre = [v for v in activator_vals if v is not None]
     _y_range = (
         max(maximas + activator_finitos_pre) - min(minimas + activator_finitos_pre)
-        if activator_finitos_pre else (max(maximas) - min(minimas))
+        if activator_finitos_pre
+        else (max(maximas) - min(minimas))
     )
     marker_offset = _y_range * 0.02 if _y_range > 0 else 0.5
 
@@ -168,15 +171,25 @@ def gerar_grafico_hilo(
             continue
         if sinais_list[i] == "COMPRA":
             ax_preco.scatter(
-                datas[i], activator_vals[i] - marker_offset,
-                color=C["green"], marker="^", s=140, zorder=5,
-                edgecolors="white", linewidths=0.8,
+                datas[i],
+                activator_vals[i] - marker_offset,
+                color=C["green"],
+                marker="^",
+                s=140,
+                zorder=5,
+                edgecolors="white",
+                linewidths=0.8,
             )
         elif sinais_list[i] == "VENDA":
             ax_preco.scatter(
-                datas[i], activator_vals[i] + marker_offset,
-                color=C["red"], marker="v", s=140, zorder=5,
-                edgecolors="white", linewidths=0.8,
+                datas[i],
+                activator_vals[i] + marker_offset,
+                color=C["red"],
+                marker="v",
+                s=140,
+                zorder=5,
+                edgecolors="white",
+                linewidths=0.8,
             )
 
     # Suporte e resistência (linhas horizontais pontilhadas)
@@ -206,28 +219,49 @@ def gerar_grafico_hilo(
 
     # Legenda compacta
     legend_elements = [
-        Line2D([0], [0], marker="s", color="w", markerfacecolor=C["green"],
-               markersize=9, label="Candle alta", linestyle="None"),
-        Line2D([0], [0], marker="s", color="w", markerfacecolor=C["red"],
-               markersize=9, label="Candle baixa", linestyle="None"),
+        Line2D(
+            [0],
+            [0],
+            marker="s",
+            color="w",
+            markerfacecolor=C["green"],
+            markersize=9,
+            label="Candle alta",
+            linestyle="None",
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="s",
+            color="w",
+            markerfacecolor=C["red"],
+            markersize=9,
+            label="Candle baixa",
+            linestyle="None",
+        ),
         Line2D([0], [0], color=C["green"], linewidth=2.2, label="Hi-Lo Alta"),
         Line2D([0], [0], color=C["red"], linewidth=2.2, label="Hi-Lo Baixa"),
-        Line2D([0], [0], marker="^", color="w", markerfacecolor=C["green"],
-               markersize=8, label="Compra", linestyle="None"),
-        Line2D([0], [0], marker="v", color="w", markerfacecolor=C["red"],
-               markersize=8, label="Venda", linestyle="None"),
+        Line2D(
+            [0], [0], marker="^", color="w", markerfacecolor=C["green"], markersize=8, label="Compra", linestyle="None"
+        ),
+        Line2D(
+            [0], [0], marker="v", color="w", markerfacecolor=C["red"], markersize=8, label="Venda", linestyle="None"
+        ),
     ]
     ax_preco.legend(
-        handles=legend_elements, loc="lower left", ncol=6,
-        fontsize=7.5, facecolor=C["panel"], edgecolor=C["border"],
+        handles=legend_elements,
+        loc="lower left",
+        ncol=6,
+        fontsize=7.5,
+        facecolor=C["panel"],
+        edgecolor=C["border"],
         labelcolor=C["text2"],
     )
 
     # ═══════════════════════════════════════════════
     # VOLUME
     # ═══════════════════════════════════════════════
-    cores_vol = [C["green"] if fechamentos[i] >= aberturas[i] else C["red"]
-                 for i in range(len(datas))]
+    cores_vol = [C["green"] if fechamentos[i] >= aberturas[i] else C["red"] for i in range(len(datas))]
     ax_vol.bar(datas, volumes, color=cores_vol, alpha=0.45, width=0.8)
     ax_vol.set_ylabel("Vol", color=C["text2"], fontsize=9)
     ax_vol.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
@@ -243,12 +277,9 @@ def gerar_grafico_hilo(
     # Cor: verde se terminou acima de 100, vermelho se abaixo
     cor_equity = C["green"] if equity_curve[-1] >= 100 else C["red"]
 
-    ax_equity.plot(trade_idx, equity_curve, color=cor_equity,
-                   linewidth=1.6, zorder=3)
-    ax_equity.fill_between(trade_idx, 100, equity_curve,
-                           color=cor_equity, alpha=0.15, zorder=2)
-    ax_equity.axhline(100, color=C["text2"], linewidth=0.6,
-                      linestyle=":", alpha=0.6, zorder=1)
+    ax_equity.plot(trade_idx, equity_curve, color=cor_equity, linewidth=1.6, zorder=3)
+    ax_equity.fill_between(trade_idx, 100, equity_curve, color=cor_equity, alpha=0.15, zorder=2)
+    ax_equity.axhline(100, color=C["text2"], linewidth=0.6, linestyle=":", alpha=0.6, zorder=1)
 
     ax_equity.set_ylabel("Equity", color=C["text2"], fontsize=9)
     ax_equity.set_xlabel("Trade nº (base 100)", color=C["text2"], fontsize=8)
@@ -260,17 +291,37 @@ def gerar_grafico_hilo(
     # ═══════════════════════════════════════════════
 
     # Título
-    ax_info.text(0.05, 0.98, ticker, fontsize=22, fontweight="bold",
-                color=C["text"], va="top", fontfamily="monospace",
-                transform=ax_info.transAxes)
-    ax_info.text(0.05, 0.93, f"Hi-Lo Activator  |  Período {hilo_info.get('periodo', 10)}",
-                fontsize=9, color=C["text2"], va="top", transform=ax_info.transAxes)
+    ax_info.text(
+        0.05,
+        0.98,
+        ticker,
+        fontsize=22,
+        fontweight="bold",
+        color=C["text"],
+        va="top",
+        fontfamily="monospace",
+        transform=ax_info.transAxes,
+    )
+    ax_info.text(
+        0.05,
+        0.93,
+        f"Hi-Lo Activator  |  Período {hilo_info.get('periodo', 10)}",
+        fontsize=9,
+        color=C["text2"],
+        va="top",
+        transform=ax_info.transAxes,
+    )
 
     # Badge de tendência
     badge_x, badge_y = 0.05, 0.88
-    badge = ax_info.text(
-        badge_x, badge_y, f"  {tendencia}  ",
-        fontsize=14, fontweight="bold", color="white", va="top",
+    ax_info.text(
+        badge_x,
+        badge_y,
+        f"  {tendencia}  ",
+        fontsize=14,
+        fontweight="bold",
+        color="white",
+        va="top",
         transform=ax_info.transAxes,
         bbox=dict(boxstyle="round,pad=0.3", facecolor=cor_tend, alpha=0.9),
     )
@@ -280,68 +331,109 @@ def gerar_grafico_hilo(
     sections = []
 
     # --- Preço ---
-    sections.append(("PRECO", [
-        ("Preco atual", preco_info.get("formatado", "N/A")),
-        ("Activator", hilo_info.get("activator_formatado", "N/A")),
-        ("Distancia", preco_info.get("distancia_activator", "N/A")),
-        ("Dias tendencia", str(hilo_info.get("dias_na_tendencia", "N/A"))),
-        ("Var. tendencia", hilo_info.get("variacao_na_tendencia", "N/A")),
-    ]))
+    sections.append(
+        (
+            "PRECO",
+            [
+                ("Preco atual", preco_info.get("formatado", "N/A")),
+                ("Activator", hilo_info.get("activator_formatado", "N/A")),
+                ("Distancia", preco_info.get("distancia_activator", "N/A")),
+                ("Dias tendencia", str(hilo_info.get("dias_na_tendencia", "N/A"))),
+                ("Var. tendencia", hilo_info.get("variacao_na_tendencia", "N/A")),
+            ],
+        )
+    )
 
     # --- Indicadores ---
-    sections.append(("INDICADORES", [
-        ("RSI (14)", f"{ind.get('rsi_14', 'N/A')}  {ind.get('rsi_zona', '')}"),
-        ("SMA 9/21", ind.get("sma_status", "N/A")),
-        ("Bollinger", preco_info.get("posicao_bollinger", "N/A")),
-    ]))
+    sections.append(
+        (
+            "INDICADORES",
+            [
+                ("RSI (14)", f"{ind.get('rsi_14', 'N/A')}  {ind.get('rsi_zona', '')}"),
+                ("SMA 9/21", ind.get("sma_status", "N/A")),
+                ("Bollinger", preco_info.get("posicao_bollinger", "N/A")),
+            ],
+        )
+    )
 
     # --- Risco ---
     if mr and mr.get("total_trades", 0) > 0:
-        sections.append(("RISCO (LONG/SHORT)", [
-            ("Trades", str(mr.get("total_trades", 0))),
-            ("Win Rate", mr.get("win_rate", "N/A")),
-            ("Payout medio", mr.get("payout_medio", "N/A")),
-            ("Payout wins", mr.get("payout_medio_wins", "N/A")),
-            ("Payout losses", mr.get("payout_medio_losses", "N/A")),
-            ("Profit Factor", str(mr.get("profit_factor", "N/A"))),
-            ("Max Drawdown", mr.get("max_drawdown", "N/A")),
-            ("Expectativa", mr.get("expectativa", "N/A")),
-            ("Retorno acum.", mr.get("retorno_acumulado", "N/A")),
-        ]))
+        sections.append(
+            (
+                "RISCO (LONG/SHORT)",
+                [
+                    ("Trades", str(mr.get("total_trades", 0))),
+                    ("Win Rate", mr.get("win_rate", "N/A")),
+                    ("Payout medio", mr.get("payout_medio", "N/A")),
+                    ("Payout wins", mr.get("payout_medio_wins", "N/A")),
+                    ("Payout losses", mr.get("payout_medio_losses", "N/A")),
+                    ("Profit Factor", str(mr.get("profit_factor", "N/A"))),
+                    ("Max Drawdown", mr.get("max_drawdown", "N/A")),
+                    ("Expectativa", mr.get("expectativa", "N/A")),
+                    ("Retorno acum.", mr.get("retorno_acumulado", "N/A")),
+                ],
+            )
+        )
 
     # --- Volume ---
-    sections.append(("VOLUME", [
-        ("Vol atual", vol_info.get("volume_atual_fmt", "N/A")),
-        ("Vol medio 20d", vol_info.get("volume_medio_fmt", "N/A")),
-        ("Classificacao", vol_info.get("volume_classificacao", "N/A")),
-    ]))
+    sections.append(
+        (
+            "VOLUME",
+            [
+                ("Vol atual", vol_info.get("volume_atual_fmt", "N/A")),
+                ("Vol medio 20d", vol_info.get("volume_medio_fmt", "N/A")),
+                ("Classificacao", vol_info.get("volume_classificacao", "N/A")),
+            ],
+        )
+    )
 
     # Renderizar seções
     for section_title, items in sections:
         # Linha separadora
-        ax_info.plot([0.05, 0.95], [y, y], color=C["border"],
-                    linewidth=0.5, transform=ax_info.transAxes, clip_on=False)
+        ax_info.plot([0.05, 0.95], [y, y], color=C["border"], linewidth=0.5, transform=ax_info.transAxes, clip_on=False)
         y -= 0.015
 
         # Título da seção
-        ax_info.text(0.05, y, section_title, fontsize=8, fontweight="bold",
-                    color=C["yellow"], va="top", transform=ax_info.transAxes)
+        ax_info.text(
+            0.05,
+            y,
+            section_title,
+            fontsize=8,
+            fontweight="bold",
+            color=C["yellow"],
+            va="top",
+            transform=ax_info.transAxes,
+        )
         y -= 0.025
 
         # Itens
         for label, value in items:
-            ax_info.text(0.07, y, label, fontsize=8, color=C["text2"],
-                        va="top", transform=ax_info.transAxes)
-            ax_info.text(0.95, y, str(value), fontsize=8, color=C["text"],
-                        va="top", ha="right", fontweight="bold",
-                        transform=ax_info.transAxes)
+            ax_info.text(0.07, y, label, fontsize=8, color=C["text2"], va="top", transform=ax_info.transAxes)
+            ax_info.text(
+                0.95,
+                y,
+                str(value),
+                fontsize=8,
+                color=C["text"],
+                va="top",
+                ha="right",
+                fontweight="bold",
+                transform=ax_info.transAxes,
+            )
             y -= 0.023
 
         y -= 0.01  # gap entre seções
 
     # Rodapé
-    ax_info.text(0.05, 0.02, f"Dados: {candles_plot[0]['data']}  a  {candles_plot[-1]['data']}",
-                fontsize=7, color=C["text2"], va="bottom", transform=ax_info.transAxes)
+    ax_info.text(
+        0.05,
+        0.02,
+        f"Dados: {candles_plot[0]['data']}  a  {candles_plot[-1]['data']}",
+        fontsize=7,
+        color=C["text2"],
+        va="bottom",
+        transform=ax_info.transAxes,
+    )
 
     # Título global
     fig.suptitle("", fontsize=1)  # espaço reservado
@@ -350,8 +442,7 @@ def gerar_grafico_hilo(
     if output_path is None:
         output_path = os.path.join(tempfile.gettempdir(), f"hilo_{ticker.lower()}.png")
 
-    fig.savefig(output_path, dpi=150, bbox_inches="tight",
-                facecolor=C["bg"], edgecolor="none")
+    fig.savefig(output_path, dpi=150, bbox_inches="tight", facecolor=C["bg"], edgecolor="none")
     plt.close(fig)
 
     return output_path

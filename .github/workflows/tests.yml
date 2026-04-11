@@ -71,8 +71,8 @@ jobs:
       - name: Install ruff
         run: pip install ruff
 
-      - name: Ruff check (non-blocking report)
-        run: ruff check src/ tests/ --output-format=github || true
+      - name: Ruff check
+        run: ruff check . --output-format=github
 
-      - name: Ruff format check (non-blocking report)
-        run: ruff format --check src/ tests/ || true
+      - name: Ruff format check
+        run: ruff format --check .

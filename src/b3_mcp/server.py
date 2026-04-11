@@ -16,25 +16,38 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from .core.services.yahoo_finance import obter_cotacao, obter_cotacao_indice, obter_historico
-from .core.services.hilo_service import analisar_hilo
-from .core.services.screener_provider import maiores_altas, maiores_baixas, maiores_volumes
-from .core.services.backtest_service import executar_backtest, ESTRATEGIAS_DISPONIVEIS
-from .core.services.indicators_calc import (
-    calc_hilo_activator, rsi, sma, ema, macd, bollinger_bands,
-)
-from .core.services.b3_service import (
-    visao_setorial, scanner_setor, analise_indice, screener_b3 as _screener_b3,
-    plano_trade, fibonacci_levels,
+from .core.services.advanced_service import (
+    analise_multiagente,
+    padroes_candle,
+    volume_breakout_scanner,
 )
 from .core.services.advanced_service import (
-    volume_breakout_scanner, padroes_candle, noticias_b3 as _noticias_b3,
-    analise_multiagente,
+    noticias_b3 as _noticias_b3,
+)
+from .core.services.b3_service import (
+    analise_indice,
+    fibonacci_levels,
+    plano_trade,
+    scanner_setor,
+    visao_setorial,
+)
+from .core.services.b3_service import (
+    screener_b3 as _screener_b3,
+)
+from .core.services.backtest_service import executar_backtest
+from .core.services.hilo_service import analisar_hilo
+from .core.services.indicators_calc import (
+    bollinger_bands,
+    calc_hilo_activator,
+    ema,
+    macd,
+    rsi,
+    sma,
 )
 from .core.services.options_sim import simular_opcoes_hilo
-from .core.data.b3_sectors import SETORES, get_setor, get_ativos_setor
-from .core.data.b3_indices import INDICES, get_constituintes
-from .core.utils.formatting import formatar_brl, formatar_percentual, formatar_volume
+from .core.services.screener_provider import maiores_altas, maiores_baixas
+from .core.services.yahoo_finance import obter_cotacao, obter_cotacao_indice, obter_historico
+from .core.utils.formatting import formatar_brl, formatar_percentual
 
 mcp = FastMCP("B3 Bovespa")
 
@@ -223,7 +236,9 @@ def analise_tecnica_b3(ticker: str, offline: bool = False) -> str:
                 "macd": {
                     "linha": round(macd_data["linha"][ultimo], 4) if macd_data["linha"][ultimo] else None,
                     "sinal": round(macd_data["sinal"][ultimo], 4) if macd_data["sinal"][ultimo] else None,
-                    "histograma": round(macd_data["histograma"][ultimo], 4) if macd_data["histograma"][ultimo] else None,
+                    "histograma": round(macd_data["histograma"][ultimo], 4)
+                    if macd_data["histograma"][ultimo]
+                    else None,
                 },
                 "bollinger": {
                     "superior": round(bb["superior"][ultimo], 2) if bb["superior"][ultimo] else None,
@@ -305,10 +320,14 @@ def maiores_altas_b3(limite: int = 10) -> str:
     """
     try:
         resultado = maiores_altas(limite)
-        return json.dumps({
-            "titulo": f"Top {limite} Maiores Altas — B3",
-            "resultados": resultado,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "titulo": f"Top {limite} Maiores Altas — B3",
+                "resultados": resultado,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
     except Exception as e:
         return json.dumps({"erro": str(e)}, ensure_ascii=False)
 
@@ -328,10 +347,14 @@ def maiores_baixas_b3(limite: int = 10) -> str:
     """
     try:
         resultado = maiores_baixas(limite)
-        return json.dumps({
-            "titulo": f"Top {limite} Maiores Baixas — B3",
-            "resultados": resultado,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "titulo": f"Top {limite} Maiores Baixas — B3",
+                "resultados": resultado,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
     except Exception as e:
         return json.dumps({"erro": str(e)}, ensure_ascii=False)
 
@@ -376,6 +399,7 @@ def backtest_estrategia(
 # ═══════════════════════════════════════════════════════════════
 # FASE 8: Tools B3-Específicas
 # ═══════════════════════════════════════════════════════════════
+
 
 @mcp.tool()
 def visao_setorial_b3(offline: bool = True) -> str:
@@ -449,7 +473,8 @@ def screener_b3(
     try:
         return json.dumps(
             _screener_b3(filtro_tendencia, filtro_setor, min_profit_factor, ordenar_por, offline),
-            ensure_ascii=False, indent=2,
+            ensure_ascii=False,
+            indent=2,
         )
     except Exception as e:
         return json.dumps({"erro": str(e)}, ensure_ascii=False)
@@ -491,6 +516,7 @@ def fibonacci_b3(ticker: str, offline: bool = False) -> str:
 # FASE 9: Análise Avançada
 # ═══════════════════════════════════════════════════════════════
 
+
 @mcp.tool()
 def analise_multiagente_b3(ticker: str, offline: bool = False) -> str:
     """
@@ -522,7 +548,8 @@ def volume_breakout_b3(multiplicador: float = 2.0, offline: bool = True) -> str:
     try:
         return json.dumps(
             volume_breakout_scanner(multiplicador, offline),
-            ensure_ascii=False, indent=2,
+            ensure_ascii=False,
+            indent=2,
         )
     except Exception as e:
         return json.dumps({"erro": str(e)}, ensure_ascii=False)
@@ -562,6 +589,7 @@ def padroes_candle_b3(ticker: str, offline: bool = False) -> str:
 # ═══════════════════════════════════════════════════════════════
 # FASE 10: Simulação de Opções
 # ═══════════════════════════════════════════════════════════════
+
 
 @mcp.tool()
 def simular_opcoes_b3(
@@ -612,6 +640,7 @@ def simular_opcoes_b3(
 # FASE 12: Apache Superset — Ingest SQLite
 # ═══════════════════════════════════════════════════════════════
 
+
 @mcp.tool()
 def refresh_dashboard_b3(
     tickers: list[str] | None = None,
@@ -635,6 +664,7 @@ def refresh_dashboard_b3(
     try:
         # Lazy import — evita custo no startup do server
         from .superset_ingest.ingest import run_ingest
+
         resultado = run_ingest(tickers=tickers, offline=offline)
         return json.dumps(resultado, ensure_ascii=False, indent=2)
     except Exception as e:

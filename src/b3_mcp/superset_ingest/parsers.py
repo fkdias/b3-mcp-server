@@ -22,7 +22,6 @@ import math
 import re
 from typing import Any
 
-
 _NUM_RE = re.compile(r"[+-]?[\d.,]+")
 
 

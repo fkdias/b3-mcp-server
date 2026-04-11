@@ -10,7 +10,7 @@ def sma(valores: list[float], periodo: int) -> list[float | None]:
         if i < periodo - 1:
             resultado.append(None)
         else:
-            media = sum(valores[i - periodo + 1: i + 1]) / periodo
+            media = sum(valores[i - periodo + 1 : i + 1]) / periodo
             resultado.append(round(media, 4))
     return resultado
 
@@ -74,11 +74,11 @@ def macd(
     ema_lenta = ema(closes, lento)
 
     linha = []
-    for r, l in zip(ema_rapida, ema_lenta):
-        if r is None or l is None:
+    for r, lento_v in zip(ema_rapida, ema_lenta, strict=False):
+        if r is None or lento_v is None:
             linha.append(None)
         else:
-            linha.append(round(r - l, 4))
+            linha.append(round(r - lento_v, 4))
 
     # Sinal = EMA da linha MACD
     valores_validos = [v for v in linha if v is not None]
@@ -101,7 +101,7 @@ def macd(
             idx_valido += 1
 
     histograma = []
-    for l_val, s_val in zip(linha, sinal_completo):
+    for l_val, s_val in zip(linha, sinal_completo, strict=False):
         if l_val is None or s_val is None:
             histograma.append(None)
         else:
@@ -110,9 +110,7 @@ def macd(
     return {"linha": linha, "sinal": sinal_completo, "histograma": histograma}
 
 
-def bollinger_bands(
-    closes: list[float], periodo: int = 20, desvios: float = 2.0
-) -> dict[str, list[float | None]]:
+def bollinger_bands(closes: list[float], periodo: int = 20, desvios: float = 2.0) -> dict[str, list[float | None]]:
     """Bandas de Bollinger."""
     media = sma(closes, periodo)
     superior = []
@@ -123,11 +121,11 @@ def bollinger_bands(
             superior.append(None)
             inferior.append(None)
         else:
-            janela = closes[max(0, i - periodo + 1): i + 1]
+            janela = closes[max(0, i - periodo + 1) : i + 1]
             m = media[i]
             n = len(janela)
             variancia = sum((x - m) ** 2 for x in janela) / n if n > 0 else 0
-            dp = variancia ** 0.5
+            dp = variancia**0.5
             superior.append(round(m + desvios * dp, 4))
             inferior.append(round(m - desvios * dp, 4))
 

@@ -3,10 +3,10 @@
 import math
 from typing import Any
 
-from .indicators_calc import calc_hilo_activator
-from .hilo_service import _carregar_offline
-from .yahoo_finance import obter_historico
 from ..utils.formatting import formatar_brl, formatar_percentual, ticker_limpo
+from .hilo_service import _carregar_offline
+from .indicators_calc import calc_hilo_activator
+from .yahoo_finance import obter_historico
 
 
 # ═══════════════════════════════════════════
@@ -72,8 +72,9 @@ _SELIC_CACHE: dict[str, float] = {}
 
 def _obter_selic() -> float:
     """Busca taxa Selic atual via API do Banco Central do Brasil. Fallback: 14.25%."""
-    import requests
     import time
+
+    import requests
 
     cache_key = "selic"
     agora = time.time()
@@ -119,10 +120,7 @@ def _validar_sizing(
 ) -> None:
     """Valida os parâmetros de sizing. Levanta ValueError em inconsistências."""
     if sizing_mode not in _SIZING_MODES_VALIDOS:
-        raise ValueError(
-            f"sizing_mode inválido: {sizing_mode!r}. "
-            f"Modos válidos: {', '.join(_SIZING_MODES_VALIDOS)}"
-        )
+        raise ValueError(f"sizing_mode inválido: {sizing_mode!r}. Modos válidos: {', '.join(_SIZING_MODES_VALIDOS)}")
 
     if lote_tamanho < 1:
         raise ValueError("lote_tamanho deve ser >= 1")
@@ -132,25 +130,17 @@ def _validar_sizing(
 
     # Todos os modos não-agregados exigem banca_inicial > 0
     if banca_inicial is None or banca_inicial <= 0:
-        raise ValueError(
-            "banca_inicial obrigatória quando sizing_mode != 'agregado'"
-        )
+        raise ValueError("banca_inicial obrigatória quando sizing_mode != 'agregado'")
 
     if sizing_mode == "lote_fixo":
         if sizing_valor < 1:
-            raise ValueError(
-                "sizing_valor (nº de lotes) deve ser >= 1 no modo 'lote_fixo'"
-            )
+            raise ValueError("sizing_valor (nº de lotes) deve ser >= 1 no modo 'lote_fixo'")
     elif sizing_mode in ("fracao_banca", "fracao_capital"):
         if not (0 < sizing_valor <= 1.0):
-            raise ValueError(
-                f"sizing_valor deve estar no intervalo (0, 1] no modo {sizing_mode!r}"
-            )
+            raise ValueError(f"sizing_valor deve estar no intervalo (0, 1] no modo {sizing_mode!r}")
     elif sizing_mode == "teto_absoluto":
         if sizing_valor <= 0:
-            raise ValueError(
-                "sizing_valor (teto em R$) deve ser > 0 no modo 'teto_absoluto'"
-            )
+            raise ValueError("sizing_valor (teto em R$) deve ser > 0 no modo 'teto_absoluto'")
 
 
 def _calcular_lotes(
@@ -284,7 +274,7 @@ def simular_opcoes_hilo(
     def _abrir_posicao(tipo: str, i: int, motivo_abertura: str) -> dict:
         S = fechamentos[i]
         K = S  # ATM
-        sigma = _calcular_volatilidade_historica(fechamentos[:i + 1])
+        sigma = _calcular_volatilidade_historica(fechamentos[: i + 1])
         if tipo == "CALL":
             premio = black_scholes_call(S, K, T, taxa_selic, sigma)
             sinal_hilo = "COMPRA"
@@ -463,9 +453,7 @@ def simular_opcoes_hilo(
                 "banca_inicial": float(banca_inicial),
                 "banca_final": round(banca_atual, 2),
                 "lucro_liquido": round(banca_atual - float(banca_inicial), 2),
-                "retorno_pct": formatar_percentual(
-                    (banca_atual / float(banca_inicial) - 1) * 100
-                ),
+                "retorno_pct": formatar_percentual((banca_atual / float(banca_inicial) - 1) * 100),
                 "pico": round(banca_pico, 2),
                 "vale": round(banca_vale, 2),
                 "max_drawdown_pct": formatar_percentual(max_dd_pct),
@@ -486,7 +474,6 @@ def simular_opcoes_hilo(
     investido_acao = sum(op["preco_ativo_entrada"] for op in operacoes)
 
     wins_opcoes = [op for op in operacoes if op["resultado_opcao_rs"] > 0]
-    losses_opcoes = [op for op in operacoes if op["resultado_opcao_rs"] <= 0]
 
     # Quando sizing ativo, NÃO vazar o campo 'lotes' interno quando ele só
     # foi usado como marcador (modo agregado injeta lotes=1 pra reutilizar o
@@ -514,9 +501,13 @@ def simular_opcoes_hilo(
             "win_rate_opcoes": formatar_percentual(len(wins_opcoes) / len(operacoes) * 100),
             "investido_opcoes": formatar_brl(investido_opcoes),
             "lucro_opcoes": formatar_brl(lucro_total_opcoes),
-            "retorno_opcoes": formatar_percentual(lucro_total_opcoes / investido_opcoes * 100) if investido_opcoes > 0 else "N/A",
+            "retorno_opcoes": formatar_percentual(lucro_total_opcoes / investido_opcoes * 100)
+            if investido_opcoes > 0
+            else "N/A",
             "lucro_acao": formatar_brl(lucro_total_acao),
-            "retorno_acao": formatar_percentual(lucro_total_acao / investido_acao * 100) if investido_acao > 0 else "N/A",
+            "retorno_acao": formatar_percentual(lucro_total_acao / investido_acao * 100)
+            if investido_acao > 0
+            else "N/A",
             "alavancagem_media": round(investido_acao / investido_opcoes, 1) if investido_opcoes > 0 else "N/A",
         },
         "operacoes": operacoes,
@@ -536,9 +527,7 @@ def simular_opcoes_hilo(
             "banca_inicial": banca_inicial_f,
             "banca_final": round(banca_atual, 2),
             "lucro_liquido": round(banca_atual - banca_inicial_f, 2),
-            "retorno_pct": formatar_percentual(
-                (banca_atual / banca_inicial_f - 1) * 100
-            ),
+            "retorno_pct": formatar_percentual((banca_atual / banca_inicial_f - 1) * 100),
             "pico": round(banca_pico, 2),
             "vale": round(banca_vale, 2),
             "max_drawdown_pct": formatar_percentual(max_dd_pct),
@@ -552,7 +541,15 @@ def simular_opcoes_hilo(
     return resultado
 
 
-def _fechar_posicao(operacoes: list, posicao: dict, preco_saida: float, data_saida: str, idx_saida: int, motivo: str, taxa_selic: float = 0.1425):
+def _fechar_posicao(
+    operacoes: list,
+    posicao: dict,
+    preco_saida: float,
+    data_saida: str,
+    idx_saida: int,
+    motivo: str,
+    taxa_selic: float = 0.1425,
+):
     """Fecha uma posição de opção e calcula resultados."""
     S = preco_saida
     K = posicao["strike"]
@@ -576,25 +573,27 @@ def _fechar_posicao(operacoes: list, posicao: dict, preco_saida: float, data_sai
     resultado_opcao = premio_saida - posicao["premio_entrada"]
     retorno_opcao_pct = (resultado_opcao / posicao["premio_entrada"] * 100) if posicao["premio_entrada"] > 0 else 0
 
-    operacoes.append({
-        "tipo_opcao": posicao["tipo_opcao"],
-        "sinal_hilo": posicao["sinal_hilo"],
-        "motivo_abertura": posicao.get("motivo_abertura", "SINAL_HILO"),
-        "data_entrada": posicao["data_entrada"],
-        "data_saida": data_saida,
-        "dias": idx_saida - posicao["idx_entrada"],
-        "motivo_saida": motivo,
-        "strike": formatar_brl(K),
-        "preco_ativo_entrada": posicao["preco_ativo_entrada"],
-        "preco_ativo_saida": round(S, 2),
-        "volatilidade": formatar_percentual(posicao["sigma"] * 100),
-        "premio_pago": posicao["premio_entrada"],
-        "premio_pago_fmt": formatar_brl(posicao["premio_entrada"]),
-        "premio_saida": round(premio_saida, 2),
-        "premio_saida_fmt": formatar_brl(premio_saida),
-        "resultado_opcao_rs": round(resultado_opcao, 2),
-        "resultado_opcao_fmt": formatar_brl(resultado_opcao),
-        "resultado_opcao_pct": formatar_percentual(retorno_opcao_pct),
-        "resultado_acao_rs": round(resultado_acao, 2),
-        "resultado_acao_fmt": formatar_brl(resultado_acao),
-    })
+    operacoes.append(
+        {
+            "tipo_opcao": posicao["tipo_opcao"],
+            "sinal_hilo": posicao["sinal_hilo"],
+            "motivo_abertura": posicao.get("motivo_abertura", "SINAL_HILO"),
+            "data_entrada": posicao["data_entrada"],
+            "data_saida": data_saida,
+            "dias": idx_saida - posicao["idx_entrada"],
+            "motivo_saida": motivo,
+            "strike": formatar_brl(K),
+            "preco_ativo_entrada": posicao["preco_ativo_entrada"],
+            "preco_ativo_saida": round(S, 2),
+            "volatilidade": formatar_percentual(posicao["sigma"] * 100),
+            "premio_pago": posicao["premio_entrada"],
+            "premio_pago_fmt": formatar_brl(posicao["premio_entrada"]),
+            "premio_saida": round(premio_saida, 2),
+            "premio_saida_fmt": formatar_brl(premio_saida),
+            "resultado_opcao_rs": round(resultado_opcao, 2),
+            "resultado_opcao_fmt": formatar_brl(resultado_opcao),
+            "resultado_opcao_pct": formatar_percentual(retorno_opcao_pct),
+            "resultado_acao_rs": round(resultado_acao, 2),
+            "resultado_acao_fmt": formatar_brl(resultado_acao),
+        }
+    )

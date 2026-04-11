@@ -27,7 +27,7 @@ from datetime import datetime
 # Reaproveitamento total de gerar_datasets_v2.py: TICKERS dict, função
 # baixar_historico (que já respeita o range=3y) e OUTPUT_DIR.
 sys.path.insert(0, os.path.dirname(__file__))
-from gerar_datasets_v2 import TICKERS, baixar_historico, OUTPUT_DIR  # noqa: E402
+from gerar_datasets_v2 import OUTPUT_DIR, TICKERS, baixar_historico  # noqa: E402
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), "relatorios")
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -44,9 +44,7 @@ def _log(msg: str, fh) -> None:
 
 
 def main() -> int:
-    log_path = os.path.join(
-        LOG_DIR, f"update_log_{datetime.now():%Y-%m-%d}.txt"
-    )
+    log_path = os.path.join(LOG_DIR, f"update_log_{datetime.now():%Y-%m-%d}.txt")
 
     with open(log_path, "a", encoding="utf-8") as fh:
         _log("=" * 60, fh)
@@ -60,9 +58,7 @@ def main() -> int:
         t0 = time.time()
 
         for ticker, nome in sorted(TICKERS.items()):
-            arquivo = os.path.join(
-                OUTPUT_DIR, f"{ticker.lower()}_diario.json"
-            )
+            arquivo = os.path.join(OUTPUT_DIR, f"{ticker.lower()}_diario.json")
             try:
                 candles = baixar_historico(ticker)
                 if not candles:
@@ -72,8 +68,7 @@ def main() -> int:
                 ultima = candles[-1]["data"]
                 primeira = candles[0]["data"]
                 _log(
-                    f"  [OK] {ticker} ({nome}): {len(candles)} candles "
-                    f"[{primeira} -> {ultima}]",
+                    f"  [OK] {ticker} ({nome}): {len(candles)} candles [{primeira} -> {ultima}]",
                     fh,
                 )
                 sucesso += 1
@@ -85,8 +80,7 @@ def main() -> int:
         duracao = time.time() - t0
         _log("=" * 60, fh)
         _log(
-            f"Fim: {sucesso}/{len(TICKERS)} ok, {len(erros)} erros, "
-            f"{duracao:.1f}s",
+            f"Fim: {sucesso}/{len(TICKERS)} ok, {len(erros)} erros, {duracao:.1f}s",
             fh,
         )
         if erros:

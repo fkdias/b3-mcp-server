@@ -106,10 +106,7 @@ class TestCalcularVolatilidade:
 class TestCalcularPerformanceTrade:
     def test_menos_de_2_sinais_retorna_none(self):
         assert _calcular_performance_trade([]) is None
-        assert (
-            _calcular_performance_trade([{"sinal": "COMPRA", "preco": 10, "data": "X"}])
-            is None
-        )
+        assert _calcular_performance_trade([{"sinal": "COMPRA", "preco": 10, "data": "X"}]) is None
 
     def test_par_venda_compra_retorna_dict(self):
         """Lista em ordem reversa (mais recente primeiro): VENDA seguida de COMPRA."""
@@ -152,10 +149,7 @@ class TestCalcularPerformanceTrade:
 class TestAvaliarVolume:
     def test_volumes_insuficientes(self):
         """Menos de 21 volumes válidos → N/A."""
-        candles = [
-            {"volume": 100_000, "maxima": 10, "minima": 9, "fechamento": 9.5}
-            for _ in range(10)
-        ]
+        candles = [{"volume": 100_000, "maxima": 10, "minima": 9, "fechamento": 9.5} for _ in range(10)]
         result = _avaliar_volume(candles)
         assert result["volume_relativo"] == "N/A"
         assert result["volume_atual"] == 0
@@ -173,19 +167,13 @@ class TestAvaliarVolume:
     def test_classificacao_por_ratio(self, atual, media, esperado):
         """5 zonas de classificação por ratio volume_atual / volume_medio."""
         # 20 candles de base com volume=media + 1 candle atual com volume=atual
-        candles = [
-            {"volume": media, "maxima": 10, "minima": 9, "fechamento": 9.5}
-            for _ in range(20)
-        ]
+        candles = [{"volume": media, "maxima": 10, "minima": 9, "fechamento": 9.5} for _ in range(20)]
         candles.append({"volume": atual, "maxima": 10, "minima": 9, "fechamento": 9.5})
         result = _avaliar_volume(candles)
         assert result["volume_classificacao"] == esperado
 
     def test_estrutura_do_retorno_com_dados_suficientes(self):
-        candles = [
-            {"volume": 1_000_000, "maxima": 10, "minima": 9, "fechamento": 9.5}
-            for _ in range(25)
-        ]
+        candles = [{"volume": 1_000_000, "maxima": 10, "minima": 9, "fechamento": 9.5} for _ in range(25)]
         result = _avaliar_volume(candles)
         assert "volume_atual" in result
         assert "volume_atual_fmt" in result
@@ -324,7 +312,7 @@ class TestCalcularMetricasRisco:
         fechamentos = [10, 11, 12, 13, 14, 13, 12, 11, 10]
         candles = [
             {
-                "data": f"2025-01-{i+1:02d}",
+                "data": f"2025-01-{i + 1:02d}",
                 "abertura": fechamentos[i],
                 "maxima": fechamentos[i] + 0.5,
                 "minima": fechamentos[i] - 0.5,
@@ -340,8 +328,8 @@ class TestCalcularMetricasRisco:
             "high_ma": [11.0] * 9,
             "low_ma": [9.0] * 9,
         }
-        hilo_data["sinais"][0] = "COMPRA"   # abre LONG @ 10
-        hilo_data["sinais"][4] = "VENDA"    # fecha LONG @ 14 (WIN), abre SHORT @ 14
+        hilo_data["sinais"][0] = "COMPRA"  # abre LONG @ 10
+        hilo_data["sinais"][4] = "VENDA"  # fecha LONG @ 14 (WIN), abre SHORT @ 14
         # Último candle (idx 8, preço 10) fecha SHORT via FIM_PERIODO (WIN)
         result = _calcular_metricas_risco(candles, hilo_data)
         assert result["total_trades"] == 2
@@ -354,7 +342,7 @@ class TestCalcularMetricasRisco:
         fechamentos = [10, 11, 12, 13, 14, 13, 12, 11, 10]
         candles = [
             {
-                "data": f"2025-01-{i+1:02d}",
+                "data": f"2025-01-{i + 1:02d}",
                 "abertura": fechamentos[i],
                 "maxima": fechamentos[i] + 0.5,
                 "minima": fechamentos[i] - 0.5,
