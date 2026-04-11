@@ -1,0 +1,40 @@
+============================================================
+Inicio: 2026-04-10T16:34:13
+Total tickers: 28
+Diretorio saida: src\b3_mcp\core\data\samples
+============================================================
+  [OK] BBDC4 (Bradesco): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] BEEF3 (Minerva): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] BPAC11 (BTG Pactual): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] BRAP4 (Bradespar): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] BRAV3 (Brava Energia): 749 candles [2023-04-10 -> 2026-04-10]
+  [OK] BRKM5 (Braskem): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] CMIN3 (CSN Mineração): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] COGN3 (Cogna): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] CSAN3 (Cosan): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] CSNA3 (CSN): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] CYRE3 (Cyrela): 750 candles [2023-04-10 -> 2026-04-10]
+  [ERRO] EMBR3 (Embraer): 404 Client Error: Not Found for url: https://query1.finance.yahoo.com/v8/finance/chart/EMBR3.SA?range=3y&interval=1d&includePrePost=false
+  [OK] HAPV3 (Hapvida): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] ITUB4 (Itaú Unibanco): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] LREN3 (Lojas Renner): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] MGLU3 (Magazine Luiza): 750 candles [2023-04-10 -> 2026-04-10]
+  [ERRO] MRFG3 (Marfrig): 404 Client Error: Not Found for url: https://query1.finance.yahoo.com/v8/finance/chart/MRFG3.SA?range=3y&interval=1d&includePrePost=false
+  [OK] MRVE3 (MRV Engenharia): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] PETR4 (Petrobras): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] PRIO3 (Prio): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] RDOR3 (Rede D'Or): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] RENT3 (Localiza): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] SANB11 (Santander Brasil): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] SAPR11 (Sanepar): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] SUZB3 (Suzano): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] USIM5 (Usiminas): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] VALE3 (Vale): 750 candles [2023-04-10 -> 2026-04-10]
+  [OK] WEGE3 (WEG): 750 candles [2023-04-10 -> 2026-04-10]
+============================================================
+Fim: 26/28 ok, 2 erros, 51.1s
+Tickers com erro:
+  - EMBR3: 404 Client Error: Not Found for url: https://query1.finance.yahoo.com/v8/finance/chart/EMBR3.SA?range=3y&interval=1d&includePrePost=false
+  - MRFG3: 404 Client Error: Not Found for url: https://query1.finance.yahoo.com/v8/finance/chart/MRFG3.SA?range=3y&interval=1d&includePrePost=false
+============================================================
+

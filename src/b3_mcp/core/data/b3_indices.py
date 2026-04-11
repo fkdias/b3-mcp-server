@@ -1,0 +1,67 @@
+"""Índices da B3 e seus constituintes principais."""
+
+INDICES: dict[str, dict] = {
+    "IBOVESPA": {
+        "yahoo": "^BVSP",
+        "descricao": "Índice Bovespa — principais blue chips",
+        "constituintes": [
+            "PETR4", "VALE3", "ITUB4", "BBDC4", "BBAS3", "B3SA3",
+            "ABEV3", "RENT3", "WEGE3", "PRIO3", "SUZB3", "ELET3",
+            "EQTL3", "JBSS3", "GGBR4", "CSNA3", "HAPV3", "RDOR3",
+            "LREN3", "VIVT3", "TOTS3", "CSAN3", "ENGI11", "KLBN11",
+            "CCRO3", "EMBR3", "RAIL3", "BPAC11", "UGPA3", "CPFE3",
+            "CMIG4", "TAEE11", "SBSP3", "USIM5", "RADL3", "HYPE3",
+            "SANB11", "ITSA4", "BBSE3", "BRFS3", "MGLU3", "AZUL4",
+            "CYRE3", "MRVE3", "FLRY3", "TIMS3", "VBBR3", "ARZZ3",
+            "CMIN3", "NTCO3",
+        ],
+    },
+    "SMLL": {
+        "yahoo": "^SMLL",
+        "descricao": "Índice Small Cap",
+        "constituintes": [
+            "PETZ3", "LWSA3", "CASH3", "EVEN3", "TEND3", "DIRR3",
+            "BRSR6", "ABCB4", "BMOB3", "MLAS3", "POSI3", "TRIS3",
+            "MDNE3", "ONCO3", "CAML3", "RANI3", "STBP3",
+        ],
+    },
+    "IDIV": {
+        "yahoo": "^IDIV",
+        "descricao": "Índice Dividendos — maiores pagadores de dividendos",
+        "constituintes": [
+            "TAEE11", "BBAS3", "CMIG4", "CPFE3", "ELET6", "BBSE3",
+            "ITSA4", "CXSE3", "SAPR11", "CSMG3", "ENGI11", "VIVT3",
+            "VALE3", "PETR4", "SANB11",
+        ],
+    },
+    "IBRX100": {
+        "yahoo": None,
+        "descricao": "Índice Brasil 100 — 100 ativos mais negociados",
+        "constituintes": [
+            "PETR4", "VALE3", "ITUB4", "BBDC4", "BBAS3", "B3SA3",
+            "ABEV3", "RENT3", "WEGE3", "PRIO3", "SUZB3", "ELET3",
+            "EQTL3", "JBSS3", "GGBR4", "CSNA3", "HAPV3", "RDOR3",
+            "LREN3", "VIVT3", "TOTS3", "CSAN3", "ENGI11", "KLBN11",
+            "CCRO3", "EMBR3", "RAIL3", "BPAC11", "UGPA3", "CPFE3",
+            "CMIG4", "TAEE11", "SBSP3", "USIM5", "RADL3", "HYPE3",
+        ],
+    },
+}
+
+
+def get_constituintes(indice: str) -> list[str]:
+    """Retorna constituintes de um índice (busca case-insensitive)."""
+    indice_upper = indice.upper().replace(" ", "")
+    for nome, dados in INDICES.items():
+        if indice_upper in nome:
+            return dados["constituintes"]
+    return []
+
+
+def get_yahoo_indice(indice: str) -> str | None:
+    """Retorna o ticker Yahoo de um índice."""
+    indice_upper = indice.upper().replace(" ", "")
+    for nome, dados in INDICES.items():
+        if indice_upper in nome:
+            return dados.get("yahoo")
+    return None

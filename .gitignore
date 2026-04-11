@@ -1,0 +1,83 @@
+# ═══════════════════════════════════════════════════════════════
+# Python
+# ═══════════════════════════════════════════════════════════════
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ═══════════════════════════════════════════════════════════════
+# Virtualenvs
+# ═══════════════════════════════════════════════════════════════
+.venv/
+venv/
+env/
+ENV/
+
+# ═══════════════════════════════════════════════════════════════
+# IDEs
+# ═══════════════════════════════════════════════════════════════
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ═══════════════════════════════════════════════════════════════
+# Fase 12 — Apache Superset / SQLite analytics
+# ═══════════════════════════════════════════════════════════════
+# SQLite gerado pelo pipeline de ingestão (fica em C:\b3-analytics\)
+# mas também ignoramos qualquer .db local caso alguém rode em outro path.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Logs e configs do Superset rodando no WSL2
+superset/*.log
+superset/superset_config.py
+superset/superset.db
+
+# Relatórios gerados (mantenha apenas os templates / READMEs se houver)
+relatorios/graficos/*.png
+
+# ═══════════════════════════════════════════════════════════════
+# Claude Code (estado local do agente)
+# ═══════════════════════════════════════════════════════════════
+.claude/
+
+# ═══════════════════════════════════════════════════════════════
+# Credenciais e segredos (NUNCA commitar)
+# ═══════════════════════════════════════════════════════════════
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.json
+config.local.*
+
+# ═══════════════════════════════════════════════════════════════
+# Logs e arquivos temporários
+# ═══════════════════════════════════════════════════════════════
+*.log
+*.tmp
+*.bak
+*~
+
+# ═══════════════════════════════════════════════════════════════
+# OneDrive / OS
+# ═══════════════════════════════════════════════════════════════
+Thumbs.db
+Desktop.ini
+.DS_Store
