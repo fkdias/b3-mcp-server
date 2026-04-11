@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# pre-push hook — bloqueia push direto em branches protegidas.
+#
+# Branches protegidas: main
+#
+# Ativacao (uma vez por clone):
+#   git config core.hooksPath .githooks
+#
+# Bypass de emergencia (use com cuidado):
+#   git push --no-verify
+#
+# Nao substitui branch protection server-side. Em repos free no GitHub,
+# branch protection e feature paga (GitHub Pro). Este hook e a alternativa
+# pragmatica para enforcement de cliente.
+
+protected_branches="main master"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Extrai o nome da branch remota (refs/heads/xxx -> xxx)
+    remote_branch="${remote_ref#refs/heads/}"
+
+    for protected in $protected_branches; do
+        if [ "$remote_branch" = "$protected" ]; then
+            echo ""
+            echo "=========================================================="
+            echo "  PUSH BLOQUEADO: branch protegida '$protected'"
+            echo "=========================================================="
+            echo ""
+            echo "  Push direto em '$protected' nao e permitido."
+            echo "  Use feature branches + pull requests."
+            echo ""
+            echo "  Fluxo correto:"
+            echo "    git checkout -b feat/minha-feature"
+            echo "    git push -u origin feat/minha-feature"
+            echo "    gh pr create --base main"
+            echo ""
+            echo "  Bypass de emergencia (NAO recomendado):"
+            echo "    git push --no-verify"
+            echo ""
+            echo "=========================================================="
+            exit 1
+        fi
+    done
+done
+
+exit 0

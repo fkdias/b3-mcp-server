@@ -81,3 +81,39 @@ python gerar_relatorio.py
 ```
 
 Gera CSV + JSON + 26 graficos PNG em `relatorios/`.
+
+## Desenvolvimento
+
+### Rodar os testes
+
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v
+```
+
+Suite de 165 testes. CI roda automaticamente em cada push/PR via GitHub Actions
+(matriz Python 3.10 / 3.11 / 3.12).
+
+### Ativar o hook pre-push (uma vez por clone)
+
+O repo traz um hook em `.githooks/pre-push` que bloqueia push direto na branch
+`main` e forca o fluxo `feat branch -> pull request`. Para ativar:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Bypass de emergencia (NAO recomendado): `git push --no-verify`.
+
+### Fluxo de contribuicao
+
+```bash
+git checkout -b feat/minha-feature
+# ... mudancas ...
+git commit -m "feat: descricao curta"
+git push -u origin feat/minha-feature
+gh pr create --base main
+```
+
+CI precisa estar verde antes do merge. PR e squash-merged e a branch apagada
+automaticamente.
