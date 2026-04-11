@@ -1,0 +1,10 @@
+[theme]
+# Tema default da Calculadora. O usuário pode trocar pra light a qualquer
+# momento via menu hamburger (canto superior direito) → Settings → Theme.
+# Como o CSS do app_calculadora.py não força mais cores hardcoded, o
+# switch pra light mode mantém contraste adequado.
+base = "dark"
+primaryColor = "#00D4FF"
+
+[browser]
+gatherUsageStats = false

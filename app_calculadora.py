@@ -52,20 +52,15 @@ st.set_page_config(
 )
 
 # Dark theme custom — alinhado com chart_service.py (fundo #0E1117)
+# Estilos mínimos — só métricas, sem forçar cores de fundo/texto. Assim
+# o theme switch (hamburger → Settings → Theme) do Streamlit funciona em
+# dark E light mode sem quebrar contraste.
 st.markdown(
     """
     <style>
-    .stApp {
-        background-color: #0E1117;
-        color: #FAFAFA;
-    }
-    .stDataFrame, .stTable {
-        background-color: #1E2128;
-    }
     [data-testid="stMetricValue"] {
         font-size: 1.4rem;
     }
-    h1, h2, h3 { color: #00D4FF; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -501,13 +496,9 @@ with tabs[IDX_TRADES]:
         st.warning(f"Sem trades pra {ticker_focus}.")
     else:
         df_tr = pd.DataFrame(trades)
-        page_size = 20
-        total_paginas = (len(df_tr) - 1) // page_size + 1
-        pagina = st.number_input("Página", min_value=1, max_value=total_paginas, value=1, step=1)
-        ini = (pagina - 1) * page_size
-        fim = ini + page_size
-        st.dataframe(df_tr.iloc[ini:fim], use_container_width=True, hide_index=True)
-        st.caption(f"Mostrando trades {ini + 1}–{min(fim, len(df_tr))} de {len(df_tr)} ({total_paginas} página(s)).")
+        altura_tr = min(800, 38 * (len(df_tr) + 1))
+        st.dataframe(df_tr, use_container_width=True, hide_index=True, height=altura_tr)
+        st.caption(f"Mostrando todos os **{len(df_tr)} trades** (scroll interno se necessário).")
 
 # ──────────────────────────────────────────────
 # TAB 5 — Heatmap
@@ -601,31 +592,23 @@ if tem_opcoes:
                 "pra ver banca evoluindo."
             )
 
-        # ─── Tabela paginada das operações ───
+        # ─── Tabela completa das operações (sempre todas visíveis) ───
         operacoes = opc_data.get("operacoes", [])
         if not operacoes:
             st.warning(f"Nenhuma operação de opção foi aberta pra {ticker_opc}.")
         else:
             st.markdown(f"##### Operações ({len(operacoes)} total)")
             df_opc = pd.DataFrame(operacoes)
-
-            page_size_opc = 20
-            total_paginas_opc = max((len(df_opc) - 1) // page_size_opc + 1, 1)
-            pagina_opc = st.number_input(
-                "Página (opções)",
-                min_value=1,
-                max_value=total_paginas_opc,
-                value=1,
-                step=1,
-                key="pag_opcoes",
+            # Altura dinâmica: ~35px por linha, teto em 800px — o Streamlit
+            # faz scroll interno depois disso, mantendo TODAS as linhas acessíveis.
+            altura_tabela = min(800, 38 * (len(df_opc) + 1))
+            st.dataframe(
+                df_opc,
+                use_container_width=True,
+                hide_index=True,
+                height=altura_tabela,
             )
-            ini_opc = (pagina_opc - 1) * page_size_opc
-            fim_opc = ini_opc + page_size_opc
-            st.dataframe(df_opc.iloc[ini_opc:fim_opc], use_container_width=True, hide_index=True)
-            st.caption(
-                f"Mostrando operações {ini_opc + 1}–{min(fim_opc, len(df_opc))} de {len(df_opc)} "
-                f"({total_paginas_opc} página(s))."
-            )
+            st.caption(f"Mostrando todas as **{len(df_opc)} operações** (scroll interno na tabela se necessário).")
 
         # ─── Premissas + disclaimer ───
         with st.expander("🔎 Premissas do modelo"):
