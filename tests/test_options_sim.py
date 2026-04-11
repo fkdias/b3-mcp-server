@@ -53,9 +53,7 @@ def test_sizing_agregado_ignora_banca_inicial(candles_petr4):
         pytest.skip("Dataset PETR4 offline indisponível")
 
     r_sem = simular_opcoes_hilo("PETR4", offline=True)
-    r_com = simular_opcoes_hilo(
-        "PETR4", offline=True, banca_inicial=9999, sizing_mode="agregado"
-    )
+    r_com = simular_opcoes_hilo("PETR4", offline=True, banca_inicial=9999, sizing_mode="agregado")
 
     # Dicts idênticos
     assert r_sem["resumo"] == r_com["resumo"]

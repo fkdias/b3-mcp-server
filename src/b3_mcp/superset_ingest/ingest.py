@@ -29,10 +29,9 @@ import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .parsers import _parse_num, _parse_trade_entrada, _pf_guard
-
 
 # ═════════════════════════════════════════════════════════════
 # Configuração
@@ -69,7 +68,7 @@ def _connect(db_path: str) -> sqlite3.Connection:
 
 def _apply_schema(conn: sqlite3.Connection) -> None:
     """Executa schema.sql (idempotente)."""
-    with open(SCHEMA_FILE, "r", encoding="utf-8") as f:
+    with open(SCHEMA_FILE, encoding="utf-8") as f:
         conn.executescript(f.read())
     conn.commit()
 
@@ -84,8 +83,8 @@ def _seed_tickers(conn: sqlite3.Connection) -> None:
     Merge de todos os tickers presentes em qualquer setor OU em qualquer
     índice. Cada linha traz setor (pode ser None) e 4 flags binárias.
     """
-    from ..core.data.b3_sectors import SETORES, get_setor
     from ..core.data.b3_indices import INDICES
+    from ..core.data.b3_sectors import SETORES, get_setor
 
     # Universo: união dos tickers vistos em setores + índices
     universo: set[str] = set()
@@ -102,15 +101,17 @@ def _seed_tickers(conn: sqlite3.Connection) -> None:
     now = _now_iso()
     rows = []
     for ticker in sorted(universo):
-        rows.append((
-            ticker,
-            get_setor(ticker),
-            1 if ticker in ibov else 0,
-            1 if ticker in smll else 0,
-            1 if ticker in idiv else 0,
-            1 if ticker in ibrx else 0,
-            now,
-        ))
+        rows.append(
+            (
+                ticker,
+                get_setor(ticker),
+                1 if ticker in ibov else 0,
+                1 if ticker in smll else 0,
+                1 if ticker in idiv else 0,
+                1 if ticker in ibrx else 0,
+                now,
+            )
+        )
 
     conn.executemany(
         """
@@ -161,8 +162,7 @@ def _finish_run(
             errors_json=?, duration_sec=?, status=?
         WHERE id=?
         """,
-        (_now_iso(), tickers_ok, tickers_fail, json.dumps(errors),
-         round(duration_sec, 2), status, run_id),
+        (_now_iso(), tickers_ok, tickers_fail, json.dumps(errors), round(duration_sec, 2), status, run_id),
     )
     conn.commit()
 
@@ -234,8 +234,12 @@ def _insert_hilo(
             _parse_num(indic.get("sma_9")),
             _parse_num(indic.get("sma_21")),
             indic.get("sma_status"),
-            vol.get("volume_atual") if isinstance(vol.get("volume_atual"), (int, float)) else _parse_num(vol.get("volume_atual")),
-            vol.get("volume_medio_20d") if isinstance(vol.get("volume_medio_20d"), (int, float)) else _parse_num(vol.get("volume_medio_20d")),
+            vol.get("volume_atual")
+            if isinstance(vol.get("volume_atual"), (int, float))
+            else _parse_num(vol.get("volume_atual")),
+            vol.get("volume_medio_20d")
+            if isinstance(vol.get("volume_medio_20d"), (int, float))
+            else _parse_num(vol.get("volume_medio_20d")),
             vol_rel,
             vol.get("volume_classificacao"),
             _parse_num(sr.get("suporte_20d")),
@@ -271,21 +275,23 @@ def _insert_hilo(
     for seq, t in enumerate(trades, start=1):
         data_ent, preco_ent = _parse_trade_entrada(t.get("entrada"))
         data_sai, preco_sai = _parse_trade_entrada(t.get("saida"))
-        trade_rows.append((
-            run_id,
-            ticker,
-            seq,
-            data_ent,
-            data_sai,
-            preco_ent,
-            preco_sai,
-            _parse_num(t.get("resultado")),
-            _parse_num(t.get("acumulado")),
-            t.get("dias"),
-            _parse_num(t.get("dd_trade")),
-            t.get("tipo"),
-            t.get("saida_por"),
-        ))
+        trade_rows.append(
+            (
+                run_id,
+                ticker,
+                seq,
+                data_ent,
+                data_sai,
+                preco_ent,
+                preco_sai,
+                _parse_num(t.get("resultado")),
+                _parse_num(t.get("acumulado")),
+                t.get("dias"),
+                _parse_num(t.get("dd_trade")),
+                t.get("tipo"),
+                t.get("saida_por"),
+            )
+        )
     if trade_rows:
         conn.executemany(
             """
@@ -302,13 +308,15 @@ def _insert_hilo(
     signals = analise.get("historico_sinais") or []
     sig_rows = []
     for s in signals:
-        sig_rows.append((
-            run_id,
-            ticker,
-            s.get("data"),
-            s.get("sinal"),
-            _parse_num(s.get("preco")),
-        ))
+        sig_rows.append(
+            (
+                run_id,
+                ticker,
+                s.get("data"),
+                s.get("sinal"),
+                _parse_num(s.get("preco")),
+            )
+        )
     if sig_rows:
         conn.executemany(
             """
@@ -368,18 +376,20 @@ def _insert_backtest(
     trades = bt.get("todos_trades") or bt.get("ultimos_trades") or []
     trade_rows = []
     for seq, t in enumerate(trades, start=1):
-        trade_rows.append((
-            run_id,
-            ticker,
-            estrategia,
-            seq,
-            t.get("data_entrada"),
-            t.get("data_saida"),
-            _parse_num(t.get("preco_entrada")),
-            _parse_num(t.get("preco_saida")),
-            _parse_num(t.get("lucro")),
-            _parse_num(t.get("lucro_pct")),
-        ))
+        trade_rows.append(
+            (
+                run_id,
+                ticker,
+                estrategia,
+                seq,
+                t.get("data_entrada"),
+                t.get("data_saida"),
+                _parse_num(t.get("preco_entrada")),
+                _parse_num(t.get("preco_saida")),
+                _parse_num(t.get("lucro")),
+                _parse_num(t.get("lucro_pct")),
+            )
+        )
     if trade_rows:
         conn.executemany(
             """
@@ -422,7 +432,8 @@ def _insert_options(
             ticker,
             # taxa_selic vem como "14,25%"; guardamos em decimal (0.1425)
             (_parse_num(premissas.get("taxa_selic")) / 100.0)
-                if _parse_num(premissas.get("taxa_selic")) is not None else None,
+            if _parse_num(premissas.get("taxa_selic")) is not None
+            else None,
             21,  # VENCIMENTO_DIAS default
             total_ops,
             resumo.get("calls"),
@@ -439,26 +450,28 @@ def _insert_options(
 
     op_rows = []
     for seq, op in enumerate(operacoes, start=1):
-        op_rows.append((
-            run_id,
-            ticker,
-            seq,
-            op.get("tipo_opcao"),
-            op.get("sinal_hilo"),
-            op.get("data_entrada"),
-            op.get("data_saida"),
-            op.get("dias"),
-            op.get("motivo_saida"),
-            _parse_num(op.get("strike")),
-            _parse_num(op.get("preco_ativo_entrada")),
-            _parse_num(op.get("preco_ativo_saida")),
-            _parse_num(op.get("volatilidade")),
-            _parse_num(op.get("premio_pago")),
-            _parse_num(op.get("premio_saida")),
-            _parse_num(op.get("resultado_opcao_rs")),
-            _parse_num(op.get("resultado_opcao_pct")),
-            _parse_num(op.get("resultado_acao_rs")),
-        ))
+        op_rows.append(
+            (
+                run_id,
+                ticker,
+                seq,
+                op.get("tipo_opcao"),
+                op.get("sinal_hilo"),
+                op.get("data_entrada"),
+                op.get("data_saida"),
+                op.get("dias"),
+                op.get("motivo_saida"),
+                _parse_num(op.get("strike")),
+                _parse_num(op.get("preco_ativo_entrada")),
+                _parse_num(op.get("preco_ativo_saida")),
+                _parse_num(op.get("volatilidade")),
+                _parse_num(op.get("premio_pago")),
+                _parse_num(op.get("premio_saida")),
+                _parse_num(op.get("resultado_opcao_rs")),
+                _parse_num(op.get("resultado_opcao_pct")),
+                _parse_num(op.get("resultado_acao_rs")),
+            )
+        )
     if op_rows:
         conn.executemany(
             """
@@ -491,8 +504,8 @@ def _processar_ticker(
 ) -> None:
     """Roda Hi-Lo + backtest + opções para um ticker e grava tudo no DB."""
     # Imports lazy para não pagar custo no startup do módulo
-    from ..core.services.hilo_service import analisar_hilo
     from ..core.services.backtest_service import executar_backtest
+    from ..core.services.hilo_service import analisar_hilo
     from ..core.services.options_sim import simular_opcoes_hilo
 
     _clear_run_ticker(conn, run_id, ticker)

@@ -1,17 +1,15 @@
 """Gera relatório completo Hi-Lo Activator de todos os 26 ativos offline."""
 
-import sys
+import csv
 import json
 import os
-import csv
+import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from b3_mcp.core.services.hilo_service import analisar_hilo, _listar_offline_disponiveis
 from b3_mcp.core.services.chart_service import gerar_grafico_hilo
-from b3_mcp.core.services.indicators_calc import calc_hilo_activator
-from b3_mcp.core.utils.formatting import formatar_brl, formatar_percentual
+from b3_mcp.core.services.hilo_service import _listar_offline_disponiveis, analisar_hilo
 
 RELATORIO_DIR = os.path.join(os.path.dirname(__file__), "relatorios")
 GRAFICOS_DIR = os.path.join(RELATORIO_DIR, "graficos")
@@ -72,32 +70,58 @@ def gerar():
         resultados_json.append(r_copy)
 
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "data_geracao": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "total_ativos": len(resultados),
-            "ativos": resultados_json,
-        }, f, ensure_ascii=False, indent=2)
+        json.dump(
+            {
+                "data_geracao": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "total_ativos": len(resultados),
+                "ativos": resultados_json,
+            },
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
 
     # ─── Salvar CSV resumo ───
     csv_path = os.path.join(RELATORIO_DIR, "resumo_hilo_26ativos.csv")
     with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f, delimiter=";")
-        writer.writerow([
-            "Ticker", "Setor", "Tendencia", "Preco", "Activator",
-            "Dist Activator", "Dias Tendencia", "Var Tendencia",
-            "RSI", "RSI Zona", "SMA Status",
-            "Vol Relativo", "Vol Class",
-            "Trades", "Win Rate", "Payout Medio",
-            "Payout Wins", "Payout Losses",
-            "Profit Factor", "Max Drawdown",
-            "Retorno Acum", "Maior Win", "Maior Loss",
-            "Max Wins Consec", "Max Losses Consec",
-            "Dias Medio Trade", "Expectativa",
-            "Suporte 20d", "Resistencia 20d",
-            "Volatilidade 20d",
-            "Ultimo Sinal", "Data Ultimo Sinal",
-            "Grafico",
-        ])
+        writer.writerow(
+            [
+                "Ticker",
+                "Setor",
+                "Tendencia",
+                "Preco",
+                "Activator",
+                "Dist Activator",
+                "Dias Tendencia",
+                "Var Tendencia",
+                "RSI",
+                "RSI Zona",
+                "SMA Status",
+                "Vol Relativo",
+                "Vol Class",
+                "Trades",
+                "Win Rate",
+                "Payout Medio",
+                "Payout Wins",
+                "Payout Losses",
+                "Profit Factor",
+                "Max Drawdown",
+                "Retorno Acum",
+                "Maior Win",
+                "Maior Loss",
+                "Max Wins Consec",
+                "Max Losses Consec",
+                "Dias Medio Trade",
+                "Expectativa",
+                "Suporte 20d",
+                "Resistencia 20d",
+                "Volatilidade 20d",
+                "Ultimo Sinal",
+                "Data Ultimo Sinal",
+                "Grafico",
+            ]
+        )
 
         for r in resultados:
             hilo = r.get("hilo", {})
@@ -109,45 +133,47 @@ def gerar():
             volat = r.get("volatilidade", {})
             us = r.get("ultimo_sinal", {})
 
-            writer.writerow([
-                r.get("ticker", ""),
-                r.get("setor", ""),
-                hilo.get("tendencia", ""),
-                preco.get("formatado", ""),
-                hilo.get("activator_formatado", ""),
-                preco.get("distancia_activator", ""),
-                hilo.get("dias_na_tendencia", ""),
-                hilo.get("variacao_na_tendencia", ""),
-                ind.get("rsi_14", ""),
-                ind.get("rsi_zona", ""),
-                ind.get("sma_status", ""),
-                vol.get("volume_relativo", ""),
-                vol.get("volume_classificacao", ""),
-                mr.get("total_trades", ""),
-                mr.get("win_rate", ""),
-                mr.get("payout_medio", ""),
-                mr.get("payout_medio_wins", ""),
-                mr.get("payout_medio_losses", ""),
-                mr.get("profit_factor", ""),
-                mr.get("max_drawdown", ""),
-                mr.get("retorno_acumulado", ""),
-                mr.get("maior_win", ""),
-                mr.get("maior_loss", ""),
-                mr.get("max_wins_consecutivos", ""),
-                mr.get("max_losses_consecutivos", ""),
-                mr.get("dias_medio_trade", ""),
-                mr.get("expectativa", ""),
-                sr.get("suporte_20d", ""),
-                sr.get("resistencia_20d", ""),
-                volat.get("volatilidade_20d", ""),
-                us.get("sinal", "") if us else "",
-                us.get("data", "") if us else "",
-                f"graficos/hilo_{r.get('ticker', '').lower()}.png",
-            ])
+            writer.writerow(
+                [
+                    r.get("ticker", ""),
+                    r.get("setor", ""),
+                    hilo.get("tendencia", ""),
+                    preco.get("formatado", ""),
+                    hilo.get("activator_formatado", ""),
+                    preco.get("distancia_activator", ""),
+                    hilo.get("dias_na_tendencia", ""),
+                    hilo.get("variacao_na_tendencia", ""),
+                    ind.get("rsi_14", ""),
+                    ind.get("rsi_zona", ""),
+                    ind.get("sma_status", ""),
+                    vol.get("volume_relativo", ""),
+                    vol.get("volume_classificacao", ""),
+                    mr.get("total_trades", ""),
+                    mr.get("win_rate", ""),
+                    mr.get("payout_medio", ""),
+                    mr.get("payout_medio_wins", ""),
+                    mr.get("payout_medio_losses", ""),
+                    mr.get("profit_factor", ""),
+                    mr.get("max_drawdown", ""),
+                    mr.get("retorno_acumulado", ""),
+                    mr.get("maior_win", ""),
+                    mr.get("maior_loss", ""),
+                    mr.get("max_wins_consecutivos", ""),
+                    mr.get("max_losses_consecutivos", ""),
+                    mr.get("dias_medio_trade", ""),
+                    mr.get("expectativa", ""),
+                    sr.get("suporte_20d", ""),
+                    sr.get("resistencia_20d", ""),
+                    volat.get("volatilidade_20d", ""),
+                    us.get("sinal", "") if us else "",
+                    us.get("data", "") if us else "",
+                    f"graficos/hilo_{r.get('ticker', '').lower()}.png",
+                ]
+            )
 
-    print(f"\n{'='*60}")
-    print(f"RELATORIO GERADO COM SUCESSO")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("RELATORIO GERADO COM SUCESSO")
+    print(f"{'=' * 60}")
     print(f"  Ativos analisados: {len(resultados)}")
     print(f"  Erros: {len(erros)} {erros if erros else ''}")
     print(f"  JSON: {json_path}")

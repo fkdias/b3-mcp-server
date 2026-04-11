@@ -1,15 +1,14 @@
 """Serviços específicos B3: setorial, índices, screener, trade plan, fibonacci."""
 
-import json
 import os
 from typing import Any
 
-from .indicators_calc import calc_hilo_activator, rsi, sma, bollinger_bands
-from .yahoo_finance import obter_historico, obter_cotacao
-from .hilo_service import _carregar_offline, analisar_hilo
-from ..data.b3_sectors import SETORES, get_setor, get_ativos_setor, TODOS_ATIVOS
 from ..data.b3_indices import INDICES, get_constituintes
+from ..data.b3_sectors import SETORES, TODOS_ATIVOS, get_ativos_setor, get_setor
 from ..utils.formatting import formatar_brl, formatar_percentual, ticker_limpo
+from .hilo_service import _carregar_offline, analisar_hilo
+from .indicators_calc import calc_hilo_activator
+from .yahoo_finance import obter_historico
 
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "samples")
 
@@ -40,13 +39,15 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
                     setor_data["ativos_alta"] += 1
                 elif tendencia == "BAIXA":
                     setor_data["ativos_baixa"] += 1
-                ativos_analisados.append({
-                    "ticker": ticker,
-                    "tendencia": tendencia,
-                    "preco": analise["preco"]["formatado"],
-                    "var_tendencia": analise["hilo"].get("variacao_na_tendencia", "N/A"),
-                    "dias": analise["hilo"].get("dias_na_tendencia", 0),
-                })
+                ativos_analisados.append(
+                    {
+                        "ticker": ticker,
+                        "tendencia": tendencia,
+                        "preco": analise["preco"]["formatado"],
+                        "var_tendencia": analise["hilo"].get("variacao_na_tendencia", "N/A"),
+                        "dias": analise["hilo"].get("dias_na_tendencia", 0),
+                    }
+                )
             except Exception:
                 continue
 
@@ -56,7 +57,9 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
         else:
             setor_data["pct_alta"] = 0
         setor_data["ativos"] = sorted(ativos_analisados, key=lambda x: x.get("dias", 0), reverse=True)
-        setor_data["momentum"] = "FORTE" if setor_data["pct_alta"] >= 70 else "MODERADO" if setor_data["pct_alta"] >= 40 else "FRACO"
+        setor_data["momentum"] = (
+            "FORTE" if setor_data["pct_alta"] >= 70 else "MODERADO" if setor_data["pct_alta"] >= 40 else "FRACO"
+        )
         resultado[setor] = setor_data
 
     # Ordenar setores por % em alta
@@ -80,17 +83,19 @@ def scanner_setor(setor: str, offline: bool = False) -> dict[str, Any]:
         try:
             analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
             mr = analise.get("metricas_risco", {})
-            resultados.append({
-                "ticker": ticker,
-                "tendencia": analise["hilo"]["tendencia"],
-                "preco": analise["preco"]["formatado"],
-                "activator": analise["hilo"]["activator_formatado"],
-                "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
-                "rsi": analise["indicadores"].get("rsi_14"),
-                "win_rate": mr.get("win_rate", "N/A"),
-                "retorno_12m": mr.get("retorno_acumulado", "N/A"),
-                "profit_factor": mr.get("profit_factor", "N/A"),
-            })
+            resultados.append(
+                {
+                    "ticker": ticker,
+                    "tendencia": analise["hilo"]["tendencia"],
+                    "preco": analise["preco"]["formatado"],
+                    "activator": analise["hilo"]["activator_formatado"],
+                    "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
+                    "rsi": analise["indicadores"].get("rsi_14"),
+                    "win_rate": mr.get("win_rate", "N/A"),
+                    "retorno_12m": mr.get("retorno_acumulado", "N/A"),
+                    "profit_factor": mr.get("profit_factor", "N/A"),
+                }
+            )
         except Exception:
             continue
 
@@ -124,14 +129,16 @@ def analise_indice(indice: str, offline: bool = False) -> dict[str, Any]:
                 alta_count += 1
             elif t == "BAIXA":
                 baixa_count += 1
-            resultados.append({
-                "ticker": ticker,
-                "setor": get_setor(ticker),
-                "tendencia": t,
-                "preco": analise["preco"]["formatado"],
-                "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
-                "rsi": analise["indicadores"].get("rsi_14"),
-            })
+            resultados.append(
+                {
+                    "ticker": ticker,
+                    "setor": get_setor(ticker),
+                    "tendencia": t,
+                    "preco": analise["preco"]["formatado"],
+                    "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
+                    "rsi": analise["indicadores"].get("rsi_14"),
+                }
+            )
         except Exception:
             continue
 
@@ -142,7 +149,13 @@ def analise_indice(indice: str, offline: bool = False) -> dict[str, Any]:
         "em_alta": alta_count,
         "em_baixa": baixa_count,
         "pct_alta": formatar_percentual(alta_count / total * 100) if total > 0 else "N/A",
-        "breadth": "BULL" if alta_count / total > 0.6 else "BEAR" if alta_count / total < 0.4 else "NEUTRO" if total > 0 else "N/A",
+        "breadth": "BULL"
+        if alta_count / total > 0.6
+        else "BEAR"
+        if alta_count / total < 0.4
+        else "NEUTRO"
+        if total > 0
+        else "N/A",
         "ativos": sorted(resultados, key=lambda x: x.get("dias_tendencia", 0), reverse=True),
     }
 
@@ -182,20 +195,22 @@ def screener_b3(
             if pf < min_profit_factor:
                 continue
 
-            resultados.append({
-                "ticker": ticker,
-                "setor": get_setor(ticker),
-                "tendencia": t,
-                "preco": analise["preco"]["formatado"],
-                "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
-                "rsi": analise["indicadores"].get("rsi_14"),
-                "win_rate": mr.get("win_rate", "N/A"),
-                "retorno_12m": mr.get("retorno_acumulado", "N/A"),
-                "profit_factor": mr.get("profit_factor", "N/A"),
-                "max_drawdown": mr.get("max_drawdown", "N/A"),
-                "_retorno_num": mr.get("equity_final", 100) - 100,
-                "_pf_num": pf,
-            })
+            resultados.append(
+                {
+                    "ticker": ticker,
+                    "setor": get_setor(ticker),
+                    "tendencia": t,
+                    "preco": analise["preco"]["formatado"],
+                    "dias_tendencia": analise["hilo"]["dias_na_tendencia"],
+                    "rsi": analise["indicadores"].get("rsi_14"),
+                    "win_rate": mr.get("win_rate", "N/A"),
+                    "retorno_12m": mr.get("retorno_acumulado", "N/A"),
+                    "profit_factor": mr.get("profit_factor", "N/A"),
+                    "max_drawdown": mr.get("max_drawdown", "N/A"),
+                    "_retorno_num": mr.get("equity_final", 100) - 100,
+                    "_pf_num": pf,
+                }
+            )
         except Exception:
             continue
 
@@ -230,7 +245,6 @@ def screener_b3(
 def plano_trade(ticker: str, offline: bool = False) -> dict[str, Any]:
     """Gera plano de trade completo para um ativo."""
     analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
-    cenarios = analise.get("cenarios", {})
     hilo = analise.get("hilo", {})
     sr = analise.get("suporte_resistencia", {})
     mr = analise.get("metricas_risco", {})

@@ -27,7 +27,6 @@ from b3_mcp.core.services.backtest_service import (
     executar_backtest,
 )
 
-
 STRATEGY_RUNNERS = [
     ("hilo", _run_hilo),
     ("rsi", _run_rsi),
@@ -77,9 +76,7 @@ class TestStrategyRunners:
         assert isinstance(trades, list)
 
     @pytest.mark.parametrize("nome,runner", STRATEGY_RUNNERS)
-    def test_dataset_real_tem_trades_com_schema_consistente(
-        self, candles_petr4, nome, runner
-    ):
+    def test_dataset_real_tem_trades_com_schema_consistente(self, candles_petr4, nome, runner):
         """Com 3 anos de PETR4, todos runners produzem trades bem-formados.
 
         Hi-Lo é always-in-market long/short: LONG lucra em alta, SHORT lucra em
@@ -156,7 +153,7 @@ class TestStrategyRunners:
             pytest.skip("Dataset com poucos sinais")
         for i in range(1, len(trades)):
             assert trades[i]["tipo"] != trades[i - 1]["tipo"], (
-                f"Trades {i-1} e {i} têm mesmo tipo — violação de reversal"
+                f"Trades {i - 1} e {i} têm mesmo tipo — violação de reversal"
             )
 
     def test_hilo_short_pnl_invertido(self):
@@ -167,14 +164,16 @@ class TestStrategyRunners:
         fechamentos = [10, 11, 12, 13, 14, 13, 12, 11, 10]
         for i, f in enumerate(fechamentos):
             # maximas / minimas desenhadas pra forçar sinais Hi-Lo
-            candles.append({
-                "data": f"2025-01-{i+1:02d}",
-                "abertura": f,
-                "maxima": f + 0.5,
-                "minima": f - 0.5,
-                "fechamento": f,
-                "volume": 1_000_000,
-            })
+            candles.append(
+                {
+                    "data": f"2025-01-{i + 1:02d}",
+                    "abertura": f,
+                    "maxima": f + 0.5,
+                    "minima": f - 0.5,
+                    "fechamento": f,
+                    "volume": 1_000_000,
+                }
+            )
         trades = _run_hilo(candles, periodo=3)
         # Pode haver 0 ou mais trades dependendo se Hi-Lo gerou sinal;
         # o importante é validar a fórmula quando SHORT existe
@@ -363,7 +362,7 @@ class TestExecutarBacktest:
             "bollinger",
         }
         # Cada estratégia tem metricas + trades
-        for nome, dados in result["comparativo"].items():
+        for _nome, dados in result["comparativo"].items():
             assert "metricas" in dados
             assert "trades" in dados
             assert len(dados["trades"]) <= 5

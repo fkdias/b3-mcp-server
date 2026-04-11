@@ -1,17 +1,15 @@
 """Serviços avançados: volume breakout, candle patterns, notícias, multi-agente."""
 
-import json
 import os
 from typing import Any
 
 import feedparser
-import requests
 
-from .indicators_calc import calc_hilo_activator, rsi, sma, bollinger_bands
-from .hilo_service import _carregar_offline, analisar_hilo, _listar_offline_disponiveis
-from .yahoo_finance import obter_historico
 from ..data.b3_sectors import get_setor
 from ..utils.formatting import formatar_brl, formatar_percentual, formatar_volume, ticker_limpo
+from .hilo_service import _carregar_offline, _listar_offline_disponiveis, analisar_hilo
+from .indicators_calc import calc_hilo_activator
+from .yahoo_finance import obter_historico
 
 SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "samples")
 
@@ -58,16 +56,18 @@ def volume_breakout_scanner(
                 preco = fechamentos[-1]
                 var_dia = ((preco - fechamentos[-2]) / fechamentos[-2] * 100) if len(fechamentos) > 1 else 0
 
-                resultados.append({
-                    "ticker": ticker,
-                    "setor": get_setor(ticker),
-                    "preco": formatar_brl(preco),
-                    "variacao_dia": formatar_percentual(var_dia),
-                    "volume_atual": formatar_volume(vol_atual),
-                    "volume_medio": formatar_volume(vol_medio),
-                    "volume_ratio": round(ratio, 2),
-                    "tendencia_hilo": hilo["tendencia"][-1],
-                })
+                resultados.append(
+                    {
+                        "ticker": ticker,
+                        "setor": get_setor(ticker),
+                        "preco": formatar_brl(preco),
+                        "variacao_dia": formatar_percentual(var_dia),
+                        "volume_atual": formatar_volume(vol_atual),
+                        "volume_medio": formatar_volume(vol_medio),
+                        "volume_ratio": round(ratio, 2),
+                        "tendencia_hilo": hilo["tendencia"][-1],
+                    }
+                )
         except Exception:
             continue
 
@@ -83,23 +83,25 @@ def volume_breakout_scanner(
 # ═══════════════════════════════════════════
 # 2. Padrões de Candle
 # ═══════════════════════════════════════════
-def _detectar_doji(o, h, l, c):
+def _detectar_doji(o, h, low, c):
     corpo = abs(c - o)
-    range_total = h - l
+    range_total = h - low
     if range_total == 0:
         return False
     return corpo / range_total < 0.05  # 5% threshold (mais preciso)
 
-def _detectar_martelo(o, h, l, c):
+
+def _detectar_martelo(o, h, low, c):
     corpo = abs(c - o)
-    range_total = h - l
+    range_total = h - low
     if range_total == 0 or corpo == 0:
         return False
-    sombra_inf = min(o, c) - l
+    sombra_inf = min(o, c) - low
     # Martelo: sombra inferior >= 2x corpo E close na metade superior
-    if sombra_inf >= corpo * 2 and c > (h + l) / 2:
+    if sombra_inf >= corpo * 2 and c > (h + low) / 2:
         return True
     return False
+
 
 def _detectar_engolfo_alta(candles, i):
     if i < 1:
@@ -108,11 +110,14 @@ def _detectar_engolfo_alta(candles, i):
     curr = candles[i]
     # Engolfo de alta: candle anterior vermelho, atual verde engolfa, volume maior
     vol_confirma = curr.get("volume", 0) > prev.get("volume", 0)
-    padrao = (prev["fechamento"] < prev["abertura"] and
-              curr["fechamento"] > curr["abertura"] and
-              curr["abertura"] <= prev["fechamento"] and
-              curr["fechamento"] >= prev["abertura"])
+    padrao = (
+        prev["fechamento"] < prev["abertura"]
+        and curr["fechamento"] > curr["abertura"]
+        and curr["abertura"] <= prev["fechamento"]
+        and curr["fechamento"] >= prev["abertura"]
+    )
     return padrao and vol_confirma
+
 
 def _detectar_engolfo_baixa(candles, i):
     if i < 1:
@@ -121,20 +126,23 @@ def _detectar_engolfo_baixa(candles, i):
     curr = candles[i]
     # Engolfo de baixa: candle anterior verde, atual vermelho engolfa, volume maior
     vol_confirma = curr.get("volume", 0) > prev.get("volume", 0)
-    padrao = (prev["fechamento"] > prev["abertura"] and
-              curr["fechamento"] < curr["abertura"] and
-              curr["abertura"] >= prev["fechamento"] and
-              curr["fechamento"] <= prev["abertura"])
+    padrao = (
+        prev["fechamento"] > prev["abertura"]
+        and curr["fechamento"] < curr["abertura"]
+        and curr["abertura"] >= prev["fechamento"]
+        and curr["fechamento"] <= prev["abertura"]
+    )
     return padrao and vol_confirma
 
-def _detectar_estrela_cadente(o, h, l, c):
+
+def _detectar_estrela_cadente(o, h, low, c):
     corpo = abs(c - o)
-    range_total = h - l
+    range_total = h - low
     if range_total == 0 or corpo == 0:
         return False
     sombra_sup = h - max(o, c)
     # Estrela cadente: sombra superior >= 2x corpo E close na metade inferior
-    if sombra_sup >= corpo * 2 and c < (h + l) / 2:
+    if sombra_sup >= corpo * 2 and c < (h + low) / 2:
         return True
     return False
 
@@ -154,24 +162,29 @@ def padroes_candle(ticker: str, offline: bool = False) -> dict[str, Any]:
 
     for i in range(max(0, len(candles) - 5), len(candles)):
         c = candles[i]
-        o, h, l, cl = c["abertura"], c["maxima"], c["minima"], c["fechamento"]
+        o, h, low, cl = c["abertura"], c["maxima"], c["minima"], c["fechamento"]
         data = c["data"]
 
-        if _detectar_doji(o, h, l, cl):
-            padroes_detectados.append({"data": data, "padrao": "Doji", "tipo": "NEUTRO",
-                                       "descricao": "Indecisão do mercado"})
-        if _detectar_martelo(o, h, l, cl):
-            padroes_detectados.append({"data": data, "padrao": "Martelo", "tipo": "ALTA",
-                                       "descricao": "Possível reversão de alta"})
-        if _detectar_estrela_cadente(o, h, l, cl):
-            padroes_detectados.append({"data": data, "padrao": "Estrela Cadente", "tipo": "BAIXA",
-                                       "descricao": "Possível reversão de baixa"})
+        if _detectar_doji(o, h, low, cl):
+            padroes_detectados.append(
+                {"data": data, "padrao": "Doji", "tipo": "NEUTRO", "descricao": "Indecisão do mercado"}
+            )
+        if _detectar_martelo(o, h, low, cl):
+            padroes_detectados.append(
+                {"data": data, "padrao": "Martelo", "tipo": "ALTA", "descricao": "Possível reversão de alta"}
+            )
+        if _detectar_estrela_cadente(o, h, low, cl):
+            padroes_detectados.append(
+                {"data": data, "padrao": "Estrela Cadente", "tipo": "BAIXA", "descricao": "Possível reversão de baixa"}
+            )
         if _detectar_engolfo_alta(candles, i):
-            padroes_detectados.append({"data": data, "padrao": "Engolfo de Alta", "tipo": "ALTA",
-                                       "descricao": "Padrão bullish de reversão"})
+            padroes_detectados.append(
+                {"data": data, "padrao": "Engolfo de Alta", "tipo": "ALTA", "descricao": "Padrão bullish de reversão"}
+            )
         if _detectar_engolfo_baixa(candles, i):
-            padroes_detectados.append({"data": data, "padrao": "Engolfo de Baixa", "tipo": "BAIXA",
-                                       "descricao": "Padrão bearish de reversão"})
+            padroes_detectados.append(
+                {"data": data, "padrao": "Engolfo de Baixa", "tipo": "BAIXA", "descricao": "Padrão bearish de reversão"}
+            )
 
     return {
         "ticker": ticker_clean,
@@ -205,6 +218,7 @@ _CATEGORIAS = {
 def _limpar_html(texto: str) -> str:
     """Remove tags HTML de um texto."""
     import re
+
     limpo = re.sub(r"<[^>]+>", "", texto)
     limpo = limpo.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     limpo = limpo.replace("&quot;", '"').replace("&#8217;", "'").replace("&#8220;", '"').replace("&#8221;", '"')
@@ -235,14 +249,16 @@ def noticias_b3(limite: int = 10) -> dict[str, Any]:
                 resumo_raw = entry.get("summary", entry.get("description", ""))
                 resumo = _limpar_html(str(resumo_raw))[:300] if resumo_raw else ""
 
-                todas_noticias.append({
-                    "titulo": titulo,
-                    "link": entry.get("link", ""),
-                    "fonte": fonte.split(" ")[0],  # "InfoMoney Mercados" -> "InfoMoney"
-                    "data": entry.get("published", entry.get("updated", "")),
-                    "categorias": _categorizar(titulo),
-                    "resumo": resumo,
-                })
+                todas_noticias.append(
+                    {
+                        "titulo": titulo,
+                        "link": entry.get("link", ""),
+                        "fonte": fonte.split(" ")[0],  # "InfoMoney Mercados" -> "InfoMoney"
+                        "data": entry.get("published", entry.get("updated", "")),
+                        "categorias": _categorizar(titulo),
+                        "resumo": resumo,
+                    }
+                )
         except Exception:
             continue
 
@@ -285,8 +301,6 @@ def analise_multiagente(ticker: str, offline: bool = False) -> dict[str, Any]:
     ind = analise.get("indicadores", {})
     vol = analise.get("volume", {})
     mr = analise.get("metricas_risco", {})
-    sr = analise.get("suporte_resistencia", {})
-    preco = analise["preco"]["atual"]
 
     # ─── Agente Técnico (max ±4) ───
     score_tecnico = 0

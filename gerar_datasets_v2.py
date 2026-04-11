@@ -3,6 +3,7 @@
 import json
 import os
 import time
+
 import requests
 
 TICKERS = {
@@ -40,17 +41,12 @@ OUTPUT_DIR = os.path.join("src", "b3_mcp", "core", "data", "samples")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 session = requests.Session()
-session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-})
+session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
 
 
 def baixar_historico(ticker: str) -> list[dict]:
     yahoo_ticker = f"{ticker}.SA"
-    url = (
-        f"https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_ticker}"
-        f"?range=3y&interval=1d&includePrePost=false"
-    )
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_ticker}?range=3y&interval=1d&includePrePost=false"
     resp = session.get(url, timeout=30)
     resp.raise_for_status()
     data = resp.json()
@@ -59,17 +55,19 @@ def baixar_historico(ticker: str) -> list[dict]:
     quote = result["indicators"]["quote"][0]
     candles = []
     for i, ts in enumerate(timestamps):
-        o, h, l, c, v = quote["open"][i], quote["high"][i], quote["low"][i], quote["close"][i], quote["volume"][i]
-        if o is None or h is None or l is None or c is None:
+        o, h, low, c, v = quote["open"][i], quote["high"][i], quote["low"][i], quote["close"][i], quote["volume"][i]
+        if o is None or h is None or low is None or c is None:
             continue
-        candles.append({
-            "data": time.strftime("%Y-%m-%d", time.gmtime(ts)),
-            "abertura": round(o, 2),
-            "maxima": round(h, 2),
-            "minima": round(l, 2),
-            "fechamento": round(c, 2),
-            "volume": v or 0,
-        })
+        candles.append(
+            {
+                "data": time.strftime("%Y-%m-%d", time.gmtime(ts)),
+                "abertura": round(o, 2),
+                "maxima": round(h, 2),
+                "minima": round(low, 2),
+                "fechamento": round(c, 2),
+                "volume": v or 0,
+            }
+        )
     return candles
 
 
@@ -79,7 +77,7 @@ if __name__ == "__main__":
     for ticker, nome in sorted(TICKERS.items()):
         arquivo = os.path.join(OUTPUT_DIR, f"{ticker.lower()}_diario.json")
         if os.path.exists(arquivo):
-            with open(arquivo, "r", encoding="utf-8") as f:
+            with open(arquivo, encoding="utf-8") as f:
                 existente = json.load(f)
             print(f"  [OK] {ticker} ({nome}) - ja existe ({len(existente)} candles)")
             sucesso += 1

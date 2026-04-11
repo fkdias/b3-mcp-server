@@ -1,17 +1,14 @@
 """Serviço de dados via Yahoo Finance para ativos da B3."""
 
-import json
 import time
 from typing import Any
 
 import requests
 
-from ..utils.formatting import ticker_para_yahoo, formatar_brl, formatar_percentual
+from ..utils.formatting import formatar_brl, formatar_percentual, ticker_para_yahoo
 
 _SESSION = requests.Session()
-_SESSION.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-})
+_SESSION.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
 
 # Cache simples em memória (ticker -> (timestamp, dados))
 _CACHE: dict[str, tuple[float, dict]] = {}
@@ -54,19 +51,21 @@ def _extrair_ohlcv(data: dict) -> list[dict]:
     for i, ts in enumerate(timestamps):
         o = quote["open"][i]
         h = quote["high"][i]
-        l = quote["low"][i]
+        low = quote["low"][i]
         c = quote["close"][i]
         v = quote["volume"][i]
-        if o is None or h is None or l is None or c is None:
+        if o is None or h is None or low is None or c is None:
             continue
-        candles.append({
-            "data": time.strftime("%Y-%m-%d", time.localtime(ts)),  # São Paulo time
-            "abertura": round(o, 2),
-            "maxima": round(h, 2),
-            "minima": round(l, 2),
-            "fechamento": round(c, 2),
-            "volume": v or 0,
-        })
+        candles.append(
+            {
+                "data": time.strftime("%Y-%m-%d", time.localtime(ts)),  # São Paulo time
+                "abertura": round(o, 2),
+                "maxima": round(h, 2),
+                "minima": round(low, 2),
+                "fechamento": round(c, 2),
+                "volume": v or 0,
+            }
+        )
     return candles
 
 
