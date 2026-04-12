@@ -1,0 +1,8 @@
+# Dependências para deploy no Streamlit Community Cloud.
+# Inclui apenas o necessário para app_calculadora.py em modo offline.
+# NÃO inclui mcp[cli], tradingview-screener, tradingview-ta, feedparser
+# (desnecessários para a calculadora offline).
+streamlit>=1.30
+pandas>=2.0
+requests>=2.31.0
+matplotlib>=3.8.0
