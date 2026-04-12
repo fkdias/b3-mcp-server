@@ -576,7 +576,7 @@ pip install -e ".[dev]"   # so na primeira vez
 pytest tests/ -v
 ```
 
-**Cobertura atual:** 151 testes em ~0.3s.
+**Cobertura atual:** 350 testes em ~0.8s.
 
 | Arquivo | Testes | Escopo |
 |---|---|---|
@@ -584,6 +584,9 @@ pytest tests/ -v
 | `tests/test_indicators_calc.py` | 32 | `indicators_calc.py`: SMA, EMA, RSI, MACD, Bollinger, Hi-Lo (offset 1-bar) |
 | `tests/test_hilo_service.py` | 36 | helpers privados + `analisar_hilo(offline=True)` end-to-end + cobertura long/short reversal |
 | `tests/test_backtest_service.py` | 35 | 6 strategy runners parametrizados + `_calcular_metricas` + `executar_backtest` + cobertura Hi-Lo LONG/SHORT always-in-market |
+| `tests/test_yahoo_finance.py` | ~60 | `yahoo_finance.py` + `obter_cotacao_indice` com mocks HTTP |
+| `tests/test_screener_provider.py` | ~40 | `screener_provider.py` + filtros TradingView com mocks |
+| `tests/test_peripheral.py` | ~100 | Módulos periféricos: formatting, b3_sectors, chart_service, options_sim, superset_ingest |
 
 **Fixtures compartilhadas** em `tests/conftest.py`:
 - `candles_sinteticos` — 30 candles em uptrend linear puro
@@ -636,8 +639,8 @@ Ou clique 2x em `app_calculadora.bat` no Windows.
    médio, retorno acumulado, melhor/pior ativo).
 3. **Equity Curve** — `st.line_chart` multi-ticker reconstruído como
    `100 × ∏(1 + lucro_pct/100)` pra cada ativo.
-4. **Trades Detalhados** — DataFrame paginado (20/página) com seletor de
-   ativo quando mais de 1 foi processado.
+4. **Trades Detalhados** — DataFrame completo com scroll interno (altura
+   dinâmica, sem paginação) e seletor de ativo quando mais de 1 foi processado.
 5. **Heatmap** — `DataFrame.style.background_gradient` colorindo
    lucro_pct/taxa_acerto/profit_factor/max_dd/trades.
 6. **Export** — download CSV (resumo) + JSON (completo com parâmetros
@@ -648,7 +651,20 @@ Ou clique 2x em `app_calculadora.bat` no Windows.
   `options_sim.py`, `hilo_service.py`)
 - **Offline sempre** (`offline=True` hardcoded) — não faz requisição HTTP
 - **Sem persistência** no MVP — tudo em memória
-- **Dark theme** alinhado com `chart_service.py` (fundo `#0E1117`)
+- **Dark theme** como default (`.streamlit/config.toml`), com suporte a
+  light mode via menu hamburger → Settings → Theme (sem quebra de contraste)
+
+**Tutorial integrado:** o expander "📖 Tutorial" no topo da página carrega
+`docs/TUTORIAL_CALCULADORA.md` — inclui explicação campo a campo da seção
+Capital & Sizing com exemplos numéricos, receitas prontas por perfil
+(iniciante / intermediário / avançado) e tabela de erros comuns.
+
+**Deploy no Streamlit Community Cloud:**
+- URL: `b3-mcpserver.streamlit.app`
+- Repo: `fkdias/b3-mcp-server`, branch `main`, main file `app_calculadora.py`
+- Dependências: `requirements.txt` (streamlit, pandas, requests, matplotlib)
+- Python: 3.12
+- Sem secrets necessários (tudo offline)
 
 **Stack adicional:** `streamlit>=1.30` + `pandas>=2.0` em
 `[project.optional-dependencies].ui` (não entra no caminho do MCP server —
