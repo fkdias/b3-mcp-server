@@ -1,341 +1,5 @@
 [
   {
-    "data": "2023-04-10",
-    "abertura": 7.0,
-    "maxima": 7.36,
-    "minima": 6.99,
-    "fechamento": 7.24,
-    "volume": 12683300
-  },
-  {
-    "data": "2023-04-11",
-    "abertura": 7.34,
-    "maxima": 7.85,
-    "minima": 7.34,
-    "fechamento": 7.73,
-    "volume": 25203300
-  },
-  {
-    "data": "2023-04-12",
-    "abertura": 7.73,
-    "maxima": 7.79,
-    "minima": 7.63,
-    "fechamento": 7.66,
-    "volume": 11305800
-  },
-  {
-    "data": "2023-04-13",
-    "abertura": 7.65,
-    "maxima": 7.74,
-    "minima": 7.59,
-    "fechamento": 7.65,
-    "volume": 7903400
-  },
-  {
-    "data": "2023-04-14",
-    "abertura": 7.61,
-    "maxima": 7.63,
-    "minima": 7.48,
-    "fechamento": 7.53,
-    "volume": 6679000
-  },
-  {
-    "data": "2023-04-17",
-    "abertura": 7.53,
-    "maxima": 7.64,
-    "minima": 7.51,
-    "fechamento": 7.54,
-    "volume": 6062200
-  },
-  {
-    "data": "2023-04-18",
-    "abertura": 7.62,
-    "maxima": 7.69,
-    "minima": 7.48,
-    "fechamento": 7.61,
-    "volume": 8964700
-  },
-  {
-    "data": "2023-04-19",
-    "abertura": 7.51,
-    "maxima": 7.54,
-    "minima": 7.32,
-    "fechamento": 7.45,
-    "volume": 18704000
-  },
-  {
-    "data": "2023-04-20",
-    "abertura": 7.51,
-    "maxima": 7.65,
-    "minima": 7.16,
-    "fechamento": 7.18,
-    "volume": 19513900
-  },
-  {
-    "data": "2023-04-24",
-    "abertura": 6.96,
-    "maxima": 7.18,
-    "minima": 6.96,
-    "fechamento": 7.12,
-    "volume": 15792600
-  },
-  {
-    "data": "2023-04-25",
-    "abertura": 7.07,
-    "maxima": 7.1,
-    "minima": 6.93,
-    "fechamento": 7.05,
-    "volume": 17167700
-  },
-  {
-    "data": "2023-04-26",
-    "abertura": 7.1,
-    "maxima": 7.14,
-    "minima": 6.99,
-    "fechamento": 7.03,
-    "volume": 10068600
-  },
-  {
-    "data": "2023-04-27",
-    "abertura": 7.05,
-    "maxima": 7.22,
-    "minima": 7.04,
-    "fechamento": 7.12,
-    "volume": 15846900
-  },
-  {
-    "data": "2023-04-28",
-    "abertura": 6.87,
-    "maxima": 7.2,
-    "minima": 6.84,
-    "fechamento": 7.2,
-    "volume": 14118200
-  },
-  {
-    "data": "2023-05-02",
-    "abertura": 7.14,
-    "maxima": 7.22,
-    "minima": 7.0,
-    "fechamento": 7.15,
-    "volume": 10729600
-  },
-  {
-    "data": "2023-05-03",
-    "abertura": 7.18,
-    "maxima": 7.25,
-    "minima": 7.06,
-    "fechamento": 7.2,
-    "volume": 9090900
-  },
-  {
-    "data": "2023-05-04",
-    "abertura": 7.22,
-    "maxima": 7.28,
-    "minima": 6.97,
-    "fechamento": 7.1,
-    "volume": 15209900
-  },
-  {
-    "data": "2023-05-05",
-    "abertura": 7.12,
-    "maxima": 7.57,
-    "minima": 7.08,
-    "fechamento": 7.49,
-    "volume": 14603800
-  },
-  {
-    "data": "2023-05-08",
-    "abertura": 7.67,
-    "maxima": 7.69,
-    "minima": 7.51,
-    "fechamento": 7.54,
-    "volume": 5318100
-  },
-  {
-    "data": "2023-05-09",
-    "abertura": 7.46,
-    "maxima": 7.66,
-    "minima": 7.45,
-    "fechamento": 7.6,
-    "volume": 6427700
-  },
-  {
-    "data": "2023-05-10",
-    "abertura": 7.63,
-    "maxima": 7.65,
-    "minima": 7.48,
-    "fechamento": 7.63,
-    "volume": 9596500
-  },
-  {
-    "data": "2023-05-11",
-    "abertura": 7.52,
-    "maxima": 7.54,
-    "minima": 7.37,
-    "fechamento": 7.44,
-    "volume": 11453200
-  },
-  {
-    "data": "2023-05-12",
-    "abertura": 7.42,
-    "maxima": 7.49,
-    "minima": 7.36,
-    "fechamento": 7.46,
-    "volume": 7254300
-  },
-  {
-    "data": "2023-05-15",
-    "abertura": 7.55,
-    "maxima": 7.69,
-    "minima": 7.51,
-    "fechamento": 7.61,
-    "volume": 8907000
-  },
-  {
-    "data": "2023-05-16",
-    "abertura": 7.62,
-    "maxima": 7.68,
-    "minima": 7.43,
-    "fechamento": 7.47,
-    "volume": 7834000
-  },
-  {
-    "data": "2023-05-17",
-    "abertura": 7.58,
-    "maxima": 7.89,
-    "minima": 7.56,
-    "fechamento": 7.72,
-    "volume": 12941900
-  },
-  {
-    "data": "2023-05-18",
-    "abertura": 7.75,
-    "maxima": 7.88,
-    "minima": 7.64,
-    "fechamento": 7.8,
-    "volume": 8863200
-  },
-  {
-    "data": "2023-05-19",
-    "abertura": 7.86,
-    "maxima": 8.02,
-    "minima": 7.74,
-    "fechamento": 7.99,
-    "volume": 12713500
-  },
-  {
-    "data": "2023-05-22",
-    "abertura": 7.95,
-    "maxima": 8.04,
-    "minima": 7.82,
-    "fechamento": 7.84,
-    "volume": 9941600
-  },
-  {
-    "data": "2023-05-23",
-    "abertura": 7.8,
-    "maxima": 7.81,
-    "minima": 7.46,
-    "fechamento": 7.49,
-    "volume": 22017000
-  },
-  {
-    "data": "2023-05-24",
-    "abertura": 7.38,
-    "maxima": 7.47,
-    "minima": 7.29,
-    "fechamento": 7.39,
-    "volume": 19410500
-  },
-  {
-    "data": "2023-05-25",
-    "abertura": 7.47,
-    "maxima": 7.5,
-    "minima": 7.25,
-    "fechamento": 7.28,
-    "volume": 11509500
-  },
-  {
-    "data": "2023-05-26",
-    "abertura": 7.46,
-    "maxima": 7.48,
-    "minima": 7.26,
-    "fechamento": 7.31,
-    "volume": 12475200
-  },
-  {
-    "data": "2023-05-29",
-    "abertura": 7.38,
-    "maxima": 7.42,
-    "minima": 7.27,
-    "fechamento": 7.28,
-    "volume": 6392500
-  },
-  {
-    "data": "2023-05-30",
-    "abertura": 7.32,
-    "maxima": 7.34,
-    "minima": 7.03,
-    "fechamento": 7.07,
-    "volume": 18656300
-  },
-  {
-    "data": "2023-05-31",
-    "abertura": 7.08,
-    "maxima": 7.13,
-    "minima": 7.0,
-    "fechamento": 7.02,
-    "volume": 13710000
-  },
-  {
-    "data": "2023-06-01",
-    "abertura": 7.13,
-    "maxima": 7.2,
-    "minima": 7.05,
-    "fechamento": 7.16,
-    "volume": 11721300
-  },
-  {
-    "data": "2023-06-02",
-    "abertura": 7.5,
-    "maxima": 7.54,
-    "minima": 7.35,
-    "fechamento": 7.38,
-    "volume": 14578400
-  },
-  {
-    "data": "2023-06-05",
-    "abertura": 7.42,
-    "maxima": 7.46,
-    "minima": 7.29,
-    "fechamento": 7.41,
-    "volume": 5639600
-  },
-  {
-    "data": "2023-06-06",
-    "abertura": 7.41,
-    "maxima": 7.48,
-    "minima": 7.38,
-    "fechamento": 7.39,
-    "volume": 14242400
-  },
-  {
-    "data": "2023-06-07",
-    "abertura": 7.44,
-    "maxima": 7.44,
-    "minima": 7.29,
-    "fechamento": 7.34,
-    "volume": 9641600
-  },
-  {
-    "data": "2023-06-09",
-    "abertura": 7.39,
-    "maxima": 7.45,
-    "minima": 7.3,
-    "fechamento": 7.33,
-    "volume": 13200700
-  },
-  {
     "data": "2023-06-12",
     "abertura": 7.31,
     "maxima": 7.37,
@@ -5996,7 +5660,343 @@
     "abertura": 7.7,
     "maxima": 7.77,
     "minima": 7.17,
+    "fechamento": 7.21,
+    "volume": 22611600
+  },
+  {
+    "data": "2026-04-13",
+    "abertura": 7.17,
+    "maxima": 7.22,
+    "minima": 6.96,
+    "fechamento": 7.03,
+    "volume": 17978300
+  },
+  {
+    "data": "2026-04-14",
+    "abertura": 7.06,
+    "maxima": 7.18,
+    "minima": 6.98,
+    "fechamento": 7.03,
+    "volume": 13002100
+  },
+  {
+    "data": "2026-04-15",
+    "abertura": 6.99,
+    "maxima": 7.06,
+    "minima": 6.81,
+    "fechamento": 6.98,
+    "volume": 11906900
+  },
+  {
+    "data": "2026-04-16",
+    "abertura": 7.02,
+    "maxima": 7.22,
+    "minima": 6.98,
+    "fechamento": 6.99,
+    "volume": 20318900
+  },
+  {
+    "data": "2026-04-17",
+    "abertura": 7.25,
+    "maxima": 7.46,
+    "minima": 7.19,
+    "fechamento": 7.21,
+    "volume": 17082400
+  },
+  {
+    "data": "2026-04-20",
+    "abertura": 7.19,
+    "maxima": 7.43,
+    "minima": 7.15,
+    "fechamento": 7.27,
+    "volume": 9855300
+  },
+  {
+    "data": "2026-04-22",
+    "abertura": 7.23,
+    "maxima": 7.34,
+    "minima": 7.15,
     "fechamento": 7.25,
-    "volume": 18446900
+    "volume": 8667100
+  },
+  {
+    "data": "2026-04-23",
+    "abertura": 7.25,
+    "maxima": 7.32,
+    "minima": 7.15,
+    "fechamento": 7.21,
+    "volume": 11406200
+  },
+  {
+    "data": "2026-04-24",
+    "abertura": 7.7,
+    "maxima": 7.98,
+    "minima": 7.53,
+    "fechamento": 7.61,
+    "volume": 26926800
+  },
+  {
+    "data": "2026-04-27",
+    "abertura": 7.67,
+    "maxima": 8.14,
+    "minima": 7.66,
+    "fechamento": 8.14,
+    "volume": 30192400
+  },
+  {
+    "data": "2026-04-28",
+    "abertura": 8.14,
+    "maxima": 8.27,
+    "minima": 8.03,
+    "fechamento": 8.17,
+    "volume": 14742600
+  },
+  {
+    "data": "2026-04-29",
+    "abertura": 8.15,
+    "maxima": 8.3,
+    "minima": 7.95,
+    "fechamento": 8.0,
+    "volume": 14456800
+  },
+  {
+    "data": "2026-04-30",
+    "abertura": 8.1,
+    "maxima": 8.32,
+    "minima": 8.01,
+    "fechamento": 8.29,
+    "volume": 18381600
+  },
+  {
+    "data": "2026-05-04",
+    "abertura": 8.28,
+    "maxima": 8.37,
+    "minima": 8.21,
+    "fechamento": 8.23,
+    "volume": 7850600
+  },
+  {
+    "data": "2026-05-05",
+    "abertura": 8.26,
+    "maxima": 8.65,
+    "minima": 8.15,
+    "fechamento": 8.65,
+    "volume": 14209700
+  },
+  {
+    "data": "2026-05-06",
+    "abertura": 8.87,
+    "maxima": 8.98,
+    "minima": 8.65,
+    "fechamento": 8.74,
+    "volume": 20143600
+  },
+  {
+    "data": "2026-05-07",
+    "abertura": 8.74,
+    "maxima": 8.9,
+    "minima": 8.64,
+    "fechamento": 8.81,
+    "volume": 8442100
+  },
+  {
+    "data": "2026-05-08",
+    "abertura": 8.99,
+    "maxima": 9.16,
+    "minima": 8.86,
+    "fechamento": 8.99,
+    "volume": 21535000
+  },
+  {
+    "data": "2026-05-11",
+    "abertura": 8.98,
+    "maxima": 9.2,
+    "minima": 8.93,
+    "fechamento": 9.07,
+    "volume": 17168700
+  },
+  {
+    "data": "2026-05-12",
+    "abertura": 9.03,
+    "maxima": 9.05,
+    "minima": 8.8,
+    "fechamento": 8.97,
+    "volume": 16043200
+  },
+  {
+    "data": "2026-05-13",
+    "abertura": 8.95,
+    "maxima": 9.3,
+    "minima": 8.85,
+    "fechamento": 9.16,
+    "volume": 21768700
+  },
+  {
+    "data": "2026-05-14",
+    "abertura": 9.23,
+    "maxima": 9.93,
+    "minima": 9.19,
+    "fechamento": 9.89,
+    "volume": 25598600
+  },
+  {
+    "data": "2026-05-15",
+    "abertura": 9.68,
+    "maxima": 9.75,
+    "minima": 9.04,
+    "fechamento": 9.12,
+    "volume": 24973100
+  },
+  {
+    "data": "2026-05-18",
+    "abertura": 9.14,
+    "maxima": 9.38,
+    "minima": 8.89,
+    "fechamento": 9.03,
+    "volume": 13426800
+  },
+  {
+    "data": "2026-05-19",
+    "abertura": 8.91,
+    "maxima": 9.26,
+    "minima": 8.91,
+    "fechamento": 9.13,
+    "volume": 16915700
+  },
+  {
+    "data": "2026-05-20",
+    "abertura": 9.19,
+    "maxima": 9.68,
+    "minima": 9.19,
+    "fechamento": 9.61,
+    "volume": 12390100
+  },
+  {
+    "data": "2026-05-21",
+    "abertura": 9.69,
+    "maxima": 10.02,
+    "minima": 9.58,
+    "fechamento": 9.8,
+    "volume": 17941900
+  },
+  {
+    "data": "2026-05-22",
+    "abertura": 9.8,
+    "maxima": 10.48,
+    "minima": 9.75,
+    "fechamento": 10.35,
+    "volume": 22520300
+  },
+  {
+    "data": "2026-05-25",
+    "abertura": 10.38,
+    "maxima": 10.44,
+    "minima": 9.91,
+    "fechamento": 10.02,
+    "volume": 9533100
+  },
+  {
+    "data": "2026-05-26",
+    "abertura": 10.0,
+    "maxima": 10.1,
+    "minima": 9.59,
+    "fechamento": 9.66,
+    "volume": 25218800
+  },
+  {
+    "data": "2026-05-27",
+    "abertura": 9.77,
+    "maxima": 10.3,
+    "minima": 9.66,
+    "fechamento": 10.23,
+    "volume": 24385600
+  },
+  {
+    "data": "2026-05-28",
+    "abertura": 10.25,
+    "maxima": 10.71,
+    "minima": 10.21,
+    "fechamento": 10.65,
+    "volume": 17495100
+  },
+  {
+    "data": "2026-05-29",
+    "abertura": 10.63,
+    "maxima": 11.15,
+    "minima": 10.6,
+    "fechamento": 11.08,
+    "volume": 34573900
+  },
+  {
+    "data": "2026-06-01",
+    "abertura": 11.0,
+    "maxima": 11.17,
+    "minima": 10.8,
+    "fechamento": 11.09,
+    "volume": 12450100
+  },
+  {
+    "data": "2026-06-02",
+    "abertura": 11.19,
+    "maxima": 12.18,
+    "minima": 11.12,
+    "fechamento": 12.04,
+    "volume": 20771300
+  },
+  {
+    "data": "2026-06-03",
+    "abertura": 11.8,
+    "maxima": 11.89,
+    "minima": 11.3,
+    "fechamento": 11.46,
+    "volume": 13194300
+  },
+  {
+    "data": "2026-06-05",
+    "abertura": 11.38,
+    "maxima": 11.65,
+    "minima": 11.02,
+    "fechamento": 11.31,
+    "volume": 15525700
+  },
+  {
+    "data": "2026-06-08",
+    "abertura": 11.27,
+    "maxima": 11.42,
+    "minima": 10.94,
+    "fechamento": 11.18,
+    "volume": 14312400
+  },
+  {
+    "data": "2026-06-09",
+    "abertura": 11.29,
+    "maxima": 11.35,
+    "minima": 10.72,
+    "fechamento": 11.12,
+    "volume": 19186500
+  },
+  {
+    "data": "2026-06-10",
+    "abertura": 10.94,
+    "maxima": 11.22,
+    "minima": 10.81,
+    "fechamento": 10.96,
+    "volume": 14219500
+  },
+  {
+    "data": "2026-06-11",
+    "abertura": 10.96,
+    "maxima": 11.01,
+    "minima": 10.55,
+    "fechamento": 10.85,
+    "volume": 10590700
+  },
+  {
+    "data": "2026-06-12",
+    "abertura": 10.82,
+    "maxima": 11.09,
+    "minima": 10.69,
+    "fechamento": 10.85,
+    "volume": 8325000
   }
 ]
