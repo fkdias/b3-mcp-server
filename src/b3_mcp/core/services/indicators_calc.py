@@ -136,7 +136,7 @@ def calc_hilo_activator(
     maximas: list[float],
     minimas: list[float],
     fechamentos: list[float],
-    periodo: int = 10,
+    periodo: int = 13,
 ) -> dict[str, Any]:
     """
     Gann Hi-Lo Activator (Custom Hi-Lo / CHiLo) — período 10.
