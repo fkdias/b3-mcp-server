@@ -76,7 +76,7 @@ def cotacao_b3(ticker: str) -> str:
 # Tool 2: Hi-Lo Activator
 # ═══════════════════════════════════════════════════════════════
 @mcp.tool()
-def hilo_activator(ticker: str, periodo: int = 10, offline: bool = False) -> str:
+def hilo_activator(ticker: str, periodo: int = 13, offline: bool = False) -> str:
     """
     Indicador Hi-Lo Activator para ações da B3.
 
@@ -85,7 +85,7 @@ def hilo_activator(ticker: str, periodo: int = 10, offline: bool = False) -> str
 
     Args:
         ticker: Código da ação (ex: PETR4, VALE3, ITUB4)
-        periodo: Período do Hi-Lo Activator (default: 10)
+        periodo: Período do Hi-Lo Activator (default: 13)
         offline: Usar dados offline para demonstração (default: False)
 
     Sinais:

@@ -413,20 +413,16 @@ padroes_candle_b3("PETR4", offline=True)
 simular_opcoes_b3("PETR4", vencimento_dias=21, offline=True)
 
 # Lote fixo: compra N lotes por trade
-simular_opcoes_b3("PETR4", offline=True,
-                  banca_inicial=2000, sizing_mode="lote_fixo", sizing_valor=1)
+simular_opcoes_b3("PETR4", offline=True, banca_inicial=2000, sizing_mode="lote_fixo", sizing_valor=1)
 
 # Fracao da banca corrente (dinamico, compoe):
-simular_opcoes_b3("PETR4", offline=True,
-                  banca_inicial=2000, sizing_mode="fracao_banca", sizing_valor=0.15)
+simular_opcoes_b3("PETR4", offline=True, banca_inicial=2000, sizing_mode="fracao_banca", sizing_valor=0.15)
 
 # Teto absoluto em R$ por trade:
-simular_opcoes_b3("PETR4", offline=True,
-                  banca_inicial=10000, sizing_mode="teto_absoluto", sizing_valor=1000)
+simular_opcoes_b3("PETR4", offline=True, banca_inicial=10000, sizing_mode="teto_absoluto", sizing_valor=1000)
 
 # Fracao do capital inicial fixo (equivalente ao teto absoluto):
-simular_opcoes_b3("PETR4", offline=True,
-                  banca_inicial=10000, sizing_mode="fracao_capital", sizing_valor=0.10)
+simular_opcoes_b3("PETR4", offline=True, banca_inicial=10000, sizing_mode="fracao_capital", sizing_valor=0.10)
 ```
 
 **Parametros:**
@@ -473,9 +469,9 @@ consultas SQL diretas).
 **Uso:**
 
 ```python
-refresh_dashboard_b3()                              # todos os 26 tickers offline
-refresh_dashboard_b3(tickers=["PETR4", "VALE3"])    # 2 tickers especificos
-refresh_dashboard_b3(offline=False)                 # usa Yahoo Finance ao vivo
+refresh_dashboard_b3()  # todos os 26 tickers offline
+refresh_dashboard_b3(tickers=["PETR4", "VALE3"])  # 2 tickers especificos
+refresh_dashboard_b3(offline=False)  # usa Yahoo Finance ao vivo
 ```
 
 **O que faz:** roda `analisar_hilo`, `executar_backtest` e `simular_opcoes_hilo`

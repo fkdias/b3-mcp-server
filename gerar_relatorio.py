@@ -26,7 +26,7 @@ def gerar():
     for ticker in sorted(tickers):
         try:
             # Gerar análise
-            result = analisar_hilo(ticker, periodo=10, offline=True)
+            result = analisar_hilo(ticker, periodo=13, offline=True)
 
             # Salvar gráfico na pasta correta
             grafico_path = os.path.join(GRAFICOS_DIR, f"hilo_{ticker.lower()}.png")

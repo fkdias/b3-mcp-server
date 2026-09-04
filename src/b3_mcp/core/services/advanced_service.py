@@ -296,7 +296,7 @@ def analise_multiagente(ticker: str, offline: bool = False) -> dict[str, Any]:
     - Agente Momentum: volume, velocidade da tendência
     - Agente Risco: drawdown, profit factor, expectativa
     """
-    analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+    analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
     hilo = analise.get("hilo", {})
     ind = analise.get("indicadores", {})
     vol = analise.get("volume", {})
