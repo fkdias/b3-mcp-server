@@ -15,9 +15,7 @@ from pathlib import Path
 
 # Aponta os dados offline para a cópia CONGELADA antes de importar o pacote — o
 # pipeline diário reescreve o diretório de produção. Ver tests/fixtures/README.md.
-os.environ.setdefault(
-    "B3_SAMPLES_DIR", str(Path(__file__).parent / "fixtures" / "samples")
-)
+os.environ.setdefault("B3_SAMPLES_DIR", str(Path(__file__).parent / "fixtures" / "samples"))
 
 import pytest  # noqa: E402
 

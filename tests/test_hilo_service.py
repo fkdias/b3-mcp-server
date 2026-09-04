@@ -435,17 +435,13 @@ class TestOfflineLoader:
         """
         import b3_mcp.core.services.hilo_service as hs
 
-        producao = (
-            Path(hs.__file__).parent.parent / "data" / "samples"
-        )
+        producao = Path(hs.__file__).parent.parent / "data" / "samples"
         if not producao.is_dir():
             pytest.skip("diretório de samples de produção ausente")
-        tickers = [f.stem.replace("_diario", "").upper()
-                   for f in producao.glob("*_diario.json")]
+        tickers = [f.stem.replace("_diario", "").upper() for f in producao.glob("*_diario.json")]
         assert "PETR4" in tickers
         assert len(tickers) >= 20, (
-            "cobertura offline caiu para %d tickers — o pipeline de dados pode "
-            "ter parado" % len(tickers)
+            f"cobertura offline caiu para {len(tickers)} tickers — o pipeline de dados pode ter parado"
         )
 
 
