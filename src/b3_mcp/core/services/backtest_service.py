@@ -15,7 +15,11 @@ from .indicators_calc import (
 )
 from .yahoo_finance import obter_historico
 
-SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "samples")
+# Dados offline. Os testes redirecionam para uma cópia congelada via B3_SAMPLES_DIR
+# (o pipeline diário sobrescreve o diretório de produção — ver tests/fixtures/README.md).
+SAMPLES_DIR = os.environ.get("B3_SAMPLES_DIR") or os.path.join(
+    os.path.dirname(__file__), "..", "data", "samples"
+)
 
 ESTRATEGIAS_DISPONIVEIS = [
     "hilo",

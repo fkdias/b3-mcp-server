@@ -3,16 +3,25 @@
 Fornece:
 - `candles_sinteticos`: 30 candles OHLC em uptrend linear puro (determinístico).
 - `candles_flat`: 30 candles com preço constante (volatilidade zero).
-- `candles_petr4`: dataset real de PETR4 (~750 candles, janela 3 anos)
-  carregado via `_carregar_offline` — usado como anchor de integração.
+- `candles_petr4`: dataset real de PETR4 (750 candles) vindo da cópia
+  congelada em `tests/fixtures/samples/` — anchor de integração estável.
 - `fechamentos_sinteticos`: série de fechamentos derivada do fixture sintético.
 """
 
 from __future__ import annotations
 
-import pytest
+import os
+from pathlib import Path
 
-from b3_mcp.core.services.hilo_service import _carregar_offline
+# Aponta os dados offline para a cópia CONGELADA antes de importar o pacote — o
+# pipeline diário reescreve o diretório de produção. Ver tests/fixtures/README.md.
+os.environ.setdefault(
+    "B3_SAMPLES_DIR", str(Path(__file__).parent / "fixtures" / "samples")
+)
+
+import pytest  # noqa: E402
+
+from b3_mcp.core.services.hilo_service import _carregar_offline  # noqa: E402
 
 
 @pytest.fixture
@@ -64,11 +73,11 @@ def candles_flat() -> list[dict]:
 
 @pytest.fixture
 def candles_petr4() -> list[dict]:
-    """Dataset real PETR4 carregado do offline samples (~750 candles).
+    """Dataset real PETR4 (750 candles) — cópia congelada em tests/fixtures.
 
-    Depende do refresh de 3 anos via `atualizar_datasets.py`. Se o dataset
-    ainda não existir, o fixture retorna `None` e os testes que o consomem
-    devem fazer skip via `pytest.skip`.
+    Gabarito fixo: não é afetado pelo `atualizar_datasets.py`, que reescreve o
+    diretório de produção todo dia útil. Os testes que o consomem ainda tratam
+    `None` por segurança, mas o arquivo é versionado e deve sempre existir.
     """
     return _carregar_offline("PETR4")
 

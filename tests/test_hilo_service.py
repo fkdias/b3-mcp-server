@@ -12,6 +12,8 @@ Zero mocking de HTTP: só modo offline.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from b3_mcp.core.services.hilo_service import (
@@ -417,9 +419,34 @@ class TestOfflineLoader:
         assert _carregar_offline("ZZZZ999") is None
 
     def test_listar_disponiveis_tem_petr4(self):
+        """Comportamento do loader, sobre as fixtures congeladas."""
         disponiveis = _listar_offline_disponiveis()
         assert "PETR4" in disponiveis
-        assert len(disponiveis) >= 20  # esperado: 26 tickers após limpeza EMBR3/MRFG3
+        # A suíte lê de tests/fixtures/samples (ver conftest); o catálogo de
+        # produção é verificado em test_catalogo_producao_tem_cobertura.
+        assert {"PETR4", "VALE3", "ITUB4", "WEGE3"}.issubset(set(disponiveis))
+
+    def test_catalogo_producao_tem_cobertura(self):
+        """Inventário de DADOS (não de código): o diretório de produção deve
+        manter cobertura de tickers para o modo offline do MCP.
+
+        Lê o diretório real, sem o override de B3_SAMPLES_DIR — por isso pode
+        falhar se o pipeline `atualizar_datasets.py` parar de rodar.
+        """
+        import b3_mcp.core.services.hilo_service as hs
+
+        producao = (
+            Path(hs.__file__).parent.parent / "data" / "samples"
+        )
+        if not producao.is_dir():
+            pytest.skip("diretório de samples de produção ausente")
+        tickers = [f.stem.replace("_diario", "").upper()
+                   for f in producao.glob("*_diario.json")]
+        assert "PETR4" in tickers
+        assert len(tickers) >= 20, (
+            "cobertura offline caiu para %d tickers — o pipeline de dados pode "
+            "ter parado" % len(tickers)
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
