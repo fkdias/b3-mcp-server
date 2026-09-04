@@ -75,7 +75,10 @@ jobs:
           cache: pip
 
       - name: Install ruff
-        run: pip install ruff
+        # Versão fixa: o ruff muda regras entre releases (0.16 passou a
+        # formatar blocos de código em markdown) e um `pip install ruff`
+        # solto faz PRs sem relação quebrarem sozinhos.
+        run: pip install ruff==0.16.6
 
       - name: Ruff check
         run: ruff check . --output-format=github
