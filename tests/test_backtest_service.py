@@ -112,11 +112,11 @@ class TestStrategyRunners:
                     assert t["lucro_pct"] > 0
 
     def test_hilo_default_vs_explicit_periodo(self, candles_petr4):
-        """`_run_hilo(candles)` deve dar mesmo resultado que `periodo=10`."""
+        """`_run_hilo(candles)` deve dar mesmo resultado que o período default (13)."""
         if candles_petr4 is None:
             pytest.skip("Dataset PETR4 offline não disponível")
         t1 = _run_hilo(candles_petr4)
-        t2 = _run_hilo(candles_petr4, periodo=10)
+        t2 = _run_hilo(candles_petr4, periodo=13)
         assert t1 == t2
 
     def test_runners_registry_tem_as_6_estrategias(self):

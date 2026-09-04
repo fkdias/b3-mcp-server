@@ -42,7 +42,7 @@ def _carregar_dados(ticker: str, offline: bool) -> list[dict]:
     return obter_historico(ticker, periodo="1y")
 
 
-def _run_hilo(candles: list[dict], periodo: int = 10) -> list[dict]:
+def _run_hilo(candles: list[dict], periodo: int = 13) -> list[dict]:
     """Backtest Hi-Lo Activator — **always in market** long/short reversal.
 
     Semântica "ganhos explosivos" (método do usuário):

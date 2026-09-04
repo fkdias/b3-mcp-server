@@ -434,7 +434,7 @@ def _gerar_cenarios(
 
 def analisar_hilo(
     ticker: str,
-    periodo: int = 10,
+    periodo: int = 13,
     offline: bool = False,
     gerar_grafico: bool = True,
 ) -> dict[str, Any]:

@@ -35,7 +35,7 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
             if offline and not _tem_offline(ticker):
                 continue
             try:
-                analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+                analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
                 tendencia = analise.get("hilo", {}).get("tendencia", "N/A")
                 if tendencia == "ALTA":
                     setor_data["ativos_alta"] += 1
@@ -83,7 +83,7 @@ def scanner_setor(setor: str, offline: bool = False) -> dict[str, Any]:
         if offline and not _tem_offline(ticker):
             continue
         try:
-            analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+            analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
             mr = analise.get("metricas_risco", {})
             resultados.append(
                 {
@@ -125,7 +125,7 @@ def analise_indice(indice: str, offline: bool = False) -> dict[str, Any]:
         if offline and not _tem_offline(ticker):
             continue
         try:
-            analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+            analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
             t = analise["hilo"]["tendencia"]
             if t == "ALTA":
                 alta_count += 1
@@ -184,7 +184,7 @@ def screener_b3(
                 continue
 
         try:
-            analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+            analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
             t = analise["hilo"]["tendencia"]
 
             if filtro_tendencia and t != filtro_tendencia.upper():
@@ -246,7 +246,7 @@ def screener_b3(
 # ═══════════════════════════════════════════
 def plano_trade(ticker: str, offline: bool = False) -> dict[str, Any]:
     """Gera plano de trade completo para um ativo."""
-    analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+    analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
     hilo = analise.get("hilo", {})
     sr = analise.get("suporte_resistencia", {})
     mr = analise.get("metricas_risco", {})

@@ -511,7 +511,7 @@ def _processar_ticker(
     _clear_run_ticker(conn, run_id, ticker)
 
     # ─── Hi-Lo (gerar_grafico=False é crítico para performance) ───
-    analise = analisar_hilo(ticker, periodo=10, offline=offline, gerar_grafico=False)
+    analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
     _insert_hilo(conn, run_id, ticker, analise)
 
     # ─── Backtest Hi-Lo ───
