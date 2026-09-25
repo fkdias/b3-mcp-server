@@ -18,11 +18,13 @@ TICKERS = {
     "CSAN3": "Cosan",
     "CSNA3": "CSN",
     "CYRE3": "Cyrela",
-    # EMBR3 e MRFG3 removidos: Yahoo Finance retorna 404 persistente pra esses
-    # tickers desde sempre (não são servidos via API v8/finance/chart).
+    # EMBR3 e MRFG3 tinham saído desta lista por "404 persistente no Yahoo" — a causa real era a
+    # renomeação (EMBR3 → EMBJ3 em 11/2025; MRFG3 e BRFS3 → MBRF3 em 09/2025). Voltam pelo código atual.
+    "EMBJ3": "Embraer",
     "HAPV3": "Hapvida",
     "ITUB4": "Itaú Unibanco",
     "LREN3": "Lojas Renner",
+    "MBRF3": "MBRF Global Foods",
     "MGLU3": "Magazine Luiza",
     "MRVE3": "MRV Engenharia",
     "PETR4": "Petrobras",

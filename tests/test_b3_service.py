@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import pytest
 
+from b3_mcp.core.data.b3_sectors import SETORES, get_setor
+from b3_mcp.core.services import b3_service
 from b3_mcp.core.services.b3_service import (
     analise_indice,
     fibonacci_levels,
@@ -33,9 +35,13 @@ class TestVisaoSetorial:
     def test_cada_setor_tem_schema_consistente(self):
         r = visao_setorial(offline=True)
         for _setor, dados in r.items():
-            for chave in ("ativos_alta", "ativos_baixa", "ativos", "total", "pct_alta", "momentum"):
+            for chave in ("ativos_alta", "ativos_baixa", "ativos", "total", "pct_alta", "momentum", "ignorados"):
                 assert chave in dados
-            assert dados["momentum"] in ("FORTE", "MODERADO", "FRACO")
+            # setor sem nenhum ativo analisado não tem leitura — não pode sair como "FRACO"
+            if dados["total"] == 0:
+                assert dados["momentum"] == "SEM DADOS"
+            else:
+                assert dados["momentum"] in ("FORTE", "MODERADO", "FRACO")
             assert isinstance(dados["ativos"], list)
             assert dados["ativos_alta"] + dados["ativos_baixa"] <= dados["total"]
 
@@ -52,6 +58,34 @@ class TestVisaoSetorial:
                 assert "tendencia" in a
                 assert "preco" in a
 
+    def test_ativo_sem_amostra_aparece_em_ignorados(self):
+        # as fixtures congeladas só têm PETR4/VALE3/ITUB4/WEGE3: o resto do setor não pode sumir calado
+        r = visao_setorial(offline=True)
+        energia = r["Energia Elétrica"]
+        assert energia["total"] == 0
+        assert energia["momentum"] == "SEM DADOS"
+        assert {i["ticker"] for i in energia["ignorados"]} == set(SETORES["Energia Elétrica"])
+        assert all(i["motivo"] == "sem amostra offline" for i in energia["ignorados"])
+
+    def test_erro_na_analise_aparece_em_ignorados(self, monkeypatch):
+        original = b3_service.analisar_hilo
+
+        def falha_em_petr4(ticker, *args, **kwargs):
+            if ticker == "PETR4":
+                raise ValueError("Dados insuficientes para PETR4")
+            return original(ticker, *args, **kwargs)
+
+        monkeypatch.setattr(b3_service, "analisar_hilo", falha_em_petr4)
+        petroleo = visao_setorial(offline=True)["Petróleo e Gás"]
+        assert "PETR4" not in {a["ticker"] for a in petroleo["ativos"]}
+        motivo = next(i["motivo"] for i in petroleo["ignorados"] if i["ticker"] == "PETR4")
+        assert motivo.startswith("sem dado: ValueError")
+
+    def test_setores_sem_dado_vao_para_o_fim(self):
+        r = visao_setorial(offline=True)
+        tem_dado = [dados["total"] > 0 for dados in r.values()]
+        assert tem_dado == sorted(tem_dado, reverse=True)
+
 
 # ═══════════════════════════════════════════════
 # scanner_setor
@@ -63,6 +97,11 @@ class TestScannerSetor:
         assert "total_ativos" in r
         assert isinstance(r["ativos"], list)
         assert r["total_ativos"] == len(r["ativos"])
+
+    def test_setor_sem_amostra_devolve_ignorados(self):
+        r = scanner_setor("Energia Elétrica", offline=True)
+        assert r["total_ativos"] == 0
+        assert {i["ticker"] for i in r["ignorados"]} == set(SETORES["Energia Elétrica"])
 
     def test_setor_invalido_raises(self):
         with pytest.raises(ValueError, match="não encontrado"):
@@ -97,6 +136,17 @@ class TestAnaliseIndice:
         with pytest.raises(ValueError, match="não encontrado"):
             analise_indice("XPTO123", offline=True)
 
+    def test_sem_nenhum_dado_nao_divide_por_zero(self, monkeypatch):
+        def sempre_falha(ticker, *args, **kwargs):
+            raise ValueError("sem dado")
+
+        monkeypatch.setattr(b3_service, "analisar_hilo", sempre_falha)
+        r = analise_indice("IBOVESPA", offline=True)  # antes: ZeroDivisionError
+        assert r["total_analisados"] == 0
+        assert r["breadth"] == "N/A"
+        assert r["pct_alta"] == "N/A"
+        assert r["ignorados"]
+
     def test_breadth_em_set_valido(self):
         r = analise_indice("IBOVESPA", offline=True)
         assert r["breadth"] in ("BULL", "BEAR", "NEUTRO", "N/A")
@@ -117,6 +167,11 @@ class TestScreenerB3:
         assert "total" in r
         assert "resultados" in r
         assert r["total"] == len(r["resultados"])
+
+    def test_filtro_setor_nao_lista_outros_setores_como_ignorados(self):
+        r = screener_b3(filtro_setor="Financeiro", offline=True)
+        assert r["ignorados"], "o setor Financeiro tem ativos sem amostra nas fixtures"
+        assert all(get_setor(i["ticker"]) == "Financeiro" for i in r["ignorados"])
 
     def test_filtro_tendencia_alta(self):
         r = screener_b3(filtro_tendencia="ALTA", offline=True)

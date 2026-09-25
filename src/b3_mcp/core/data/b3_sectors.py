@@ -1,6 +1,10 @@
 """Setores da B3 e seus principais ativos."""
 
 SETORES: dict[str, list[str]] = {
+    # Mapa revisado em 2026-09-25: 9 códigos renomeados trocados pelo atual (conferido na lista de
+    # renomeações da Brapi e com cotação no Yahoo), 8 sem cotação em nenhuma fonte removidos, e os
+    # ativos da watchlist da Sala Nitro incluídos. Código deslistado aqui não dá erro — some calado
+    # da leitura setorial —, então revisar quando uma empresa mudar de ticker.
     "Financeiro": [
         "ITUB4",
         "BBDC4",
@@ -18,7 +22,7 @@ SETORES: dict[str, list[str]] = {
         "PETR3",
         "PRIO3",
         "RECV3",
-        "RRRP3",
+        "BRAV3",  # ex-RRRP3 (3R + Enauta), desde 09/2024
         "CSAN3",
         "UGPA3",
         "VBBR3",
@@ -30,29 +34,25 @@ SETORES: dict[str, list[str]] = {
         "USIM5",
         "CMIN3",
         "GOAU4",
+        "BRAP4",
     ],
     "Energia Elétrica": [
-        "ELET3",
-        "ELET6",
+        "AXIA3",  # ex-ELET3 (Eletrobras → Axia), desde 11/2025
         "ENGI11",
         "EQTL3",
         "CPFE3",
         "CMIG4",
         "TAEE11",
-        "ENBR3",
         "AURE3",
-        "NEOE3",
     ],
     "Consumo": [
         "ABEV3",
         "MGLU3",
         "LREN3",
-        "PETZ3",
-        "ARZZ3",
-        "SOMA3",
-        "NTCO3",
+        "AUAU3",  # ex-PETZ3 (Petz + Cobasi), desde 01/2026
+        "AZZA3",  # ex-ARZZ3 e SOMA3 (Arezzo + Soma), desde 08/2024
+        "NATU3",  # ex-NTCO3, desde 07/2025
         "ASAI3",
-        "CRFB3",
         "PCAR3",
     ],
     "Saúde": [
@@ -66,7 +66,6 @@ SETORES: dict[str, list[str]] = {
     "Telecomunicações": [
         "VIVT3",
         "TIMS3",
-        "OIBR3",
     ],
     "Tecnologia": [
         "TOTS3",
@@ -93,22 +92,18 @@ SETORES: dict[str, list[str]] = {
         "RANI3",
     ],
     "Alimentos": [
-        "JBSS3",
-        "BRFS3",
+        "JBSS32",  # ex-JBSS3: JBS migrou para a NYSE; na B3 negocia como BDR, desde 2025
+        "MBRF3",  # ex-BRFS3 e MRFG3 (BRF + Marfrig), desde 09/2025
         "MDIA3",
-        "MRFG3",
         "BEEF3",
         "SMTO3",
         "CAML3",
     ],
     "Transporte e Logística": [
         "RAIL3",
-        "CCRO3",
-        "AZUL4",
-        "GOLL4",
-        "EMBR3",
+        "MOTV3",  # ex-CCRO3 (CCR → Motiva), desde 05/2025
         "ECOR3",
-        "STBP3",
+        "RENT3",
     ],
     "Seguros": [
         "BBSE3",
@@ -120,6 +115,16 @@ SETORES: dict[str, list[str]] = {
         "SBSP3",
         "SAPR11",
         "CSMG3",
+    ],
+    "Bens Industriais": [
+        "WEGE3",
+        "EMBJ3",  # ex-EMBR3 (Embraer), desde 11/2025; antes ficava em Transporte e Logística
+    ],
+    "Educação": [
+        "COGN3",
+    ],
+    "Química": [
+        "BRKM5",
     ],
 }
 
