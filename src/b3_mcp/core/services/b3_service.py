@@ -20,6 +20,17 @@ def _tem_offline(ticker: str) -> bool:
     return os.path.exists(os.path.join(SAMPLES_DIR, f"{nome}_diario.json"))
 
 
+# Ativos que ficam de fora de uma leitura (setorial, índice, screener) são DEVOLVIDOS no resultado,
+# com o motivo. Antes eram descartados em silêncio e a leitura saía distorcida sem aviso — um ticker
+# renomeado sumia do setor e o setor parecia mais fraco (ou mais forte) do que era.
+MOTIVO_SEM_AMOSTRA = "sem amostra offline"
+
+
+def _motivo_erro(e: Exception) -> str:
+    """Motivo legível de um ativo que falhou na análise (ticker deslistado, histórico curto etc.)."""
+    return f"sem dado: {type(e).__name__}: {str(e)[:80]}"
+
+
 # ═══════════════════════════════════════════
 # 1. Visão Setorial
 # ═══════════════════════════════════════════
@@ -30,9 +41,11 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
     for setor, ativos in SETORES.items():
         setor_data = {"ativos_alta": 0, "ativos_baixa": 0, "ativos": [], "total": 0}
         ativos_analisados = []
+        ignorados: list[dict[str, str]] = []
 
         for ticker in ativos:
             if offline and not _tem_offline(ticker):
+                ignorados.append({"ticker": ticker, "motivo": MOTIVO_SEM_AMOSTRA})
                 continue
             try:
                 analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
@@ -50,7 +63,8 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
                         "dias": analise["hilo"].get("dias_na_tendencia", 0),
                     }
                 )
-            except Exception:
+            except Exception as e:
+                ignorados.append({"ticker": ticker, "motivo": _motivo_erro(e)})
                 continue
 
         setor_data["total"] = len(ativos_analisados)
@@ -59,13 +73,20 @@ def visao_setorial(offline: bool = False) -> dict[str, Any]:
         else:
             setor_data["pct_alta"] = 0
         setor_data["ativos"] = sorted(ativos_analisados, key=lambda x: x.get("dias", 0), reverse=True)
-        setor_data["momentum"] = (
-            "FORTE" if setor_data["pct_alta"] >= 70 else "MODERADO" if setor_data["pct_alta"] >= 40 else "FRACO"
-        )
+        if setor_data["total"] == 0:
+            # nenhum ativo analisado: "0% em alta" aqui não é fraqueza do setor, é falta de dado
+            setor_data["momentum"] = "SEM DADOS"
+        else:
+            setor_data["momentum"] = (
+                "FORTE" if setor_data["pct_alta"] >= 70 else "MODERADO" if setor_data["pct_alta"] >= 40 else "FRACO"
+            )
+        setor_data["ignorados"] = ignorados
         resultado[setor] = setor_data
 
-    # Ordenar setores por % em alta
-    resultado_ordenado = dict(sorted(resultado.items(), key=lambda x: x[1].get("pct_alta", 0), reverse=True))
+    # Ordenar setores por % em alta; setores sem nenhum dado vão para o fim
+    resultado_ordenado = dict(
+        sorted(resultado.items(), key=lambda x: (x[1]["total"] > 0, x[1].get("pct_alta", 0)), reverse=True)
+    )
     return resultado_ordenado
 
 
@@ -79,8 +100,10 @@ def scanner_setor(setor: str, offline: bool = False) -> dict[str, Any]:
         raise ValueError(f"Setor '{setor}' não encontrado. Disponíveis: {', '.join(SETORES.keys())}")
 
     resultados = []
+    ignorados: list[dict[str, str]] = []
     for ticker in ativos:
         if offline and not _tem_offline(ticker):
+            ignorados.append({"ticker": ticker, "motivo": MOTIVO_SEM_AMOSTRA})
             continue
         try:
             analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
@@ -98,13 +121,15 @@ def scanner_setor(setor: str, offline: bool = False) -> dict[str, Any]:
                     "profit_factor": mr.get("profit_factor", "N/A"),
                 }
             )
-        except Exception:
+        except Exception as e:
+            ignorados.append({"ticker": ticker, "motivo": _motivo_erro(e)})
             continue
 
     return {
         "setor": setor,
         "total_ativos": len(resultados),
         "ativos": sorted(resultados, key=lambda x: x.get("dias_tendencia", 0), reverse=True),
+        "ignorados": ignorados,
     }
 
 
@@ -120,9 +145,11 @@ def analise_indice(indice: str, offline: bool = False) -> dict[str, Any]:
     resultados = []
     alta_count = 0
     baixa_count = 0
+    ignorados: list[dict[str, str]] = []
 
     for ticker in constituintes:
         if offline and not _tem_offline(ticker):
+            ignorados.append({"ticker": ticker, "motivo": MOTIVO_SEM_AMOSTRA})
             continue
         try:
             analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
@@ -141,24 +168,30 @@ def analise_indice(indice: str, offline: bool = False) -> dict[str, Any]:
                     "rsi": analise["indicadores"].get("rsi_14"),
                 }
             )
-        except Exception:
+        except Exception as e:
+            ignorados.append({"ticker": ticker, "motivo": _motivo_erro(e)})
             continue
 
     total = len(resultados)
+    # checar o total ANTES de dividir: sem nenhum constituinte com dado, a expressão antiga
+    # calculava alta_count / total e quebrava com ZeroDivisionError
+    if total == 0:
+        breadth = "N/A"
+    elif alta_count / total > 0.6:
+        breadth = "BULL"
+    elif alta_count / total < 0.4:
+        breadth = "BEAR"
+    else:
+        breadth = "NEUTRO"
     return {
         "indice": indice,
         "total_analisados": total,
         "em_alta": alta_count,
         "em_baixa": baixa_count,
         "pct_alta": formatar_percentual(alta_count / total * 100) if total > 0 else "N/A",
-        "breadth": "BULL"
-        if alta_count / total > 0.6
-        else "BEAR"
-        if alta_count / total < 0.4
-        else "NEUTRO"
-        if total > 0
-        else "N/A",
+        "breadth": breadth,
         "ativos": sorted(resultados, key=lambda x: x.get("dias_tendencia", 0), reverse=True),
+        "ignorados": ignorados,
     }
 
 
@@ -174,14 +207,16 @@ def screener_b3(
 ) -> dict[str, Any]:
     """Screener de ações da B3 com filtros."""
     resultados = []
+    ignorados: list[dict[str, str]] = []
 
     for ticker in TODOS_ATIVOS:
-        if offline and not _tem_offline(ticker):
-            continue
         if filtro_setor:
             setor = get_setor(ticker)
             if setor and filtro_setor.lower() not in setor.lower():
                 continue
+        if offline and not _tem_offline(ticker):
+            ignorados.append({"ticker": ticker, "motivo": MOTIVO_SEM_AMOSTRA})
+            continue
 
         try:
             analise = analisar_hilo(ticker, periodo=13, offline=offline, gerar_grafico=False)
@@ -213,7 +248,8 @@ def screener_b3(
                     "_pf_num": pf,
                 }
             )
-        except Exception:
+        except Exception as e:
+            ignorados.append({"ticker": ticker, "motivo": _motivo_erro(e)})
             continue
 
     # Ordenar
@@ -238,6 +274,7 @@ def screener_b3(
         },
         "total": len(resultados),
         "resultados": resultados,
+        "ignorados": ignorados,
     }
 
 
